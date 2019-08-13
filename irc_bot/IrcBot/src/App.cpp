@@ -84,6 +84,22 @@ void App::run()
 				}
 
 			}
+			else if (command == "givekarma")
+			{
+				Id id;
+				int karmaValue;
+
+				std::cout << "Meme id: ";
+				std::cin >> id;
+
+				std::cout << "Karma value: ";
+				std::cin >> karmaValue;
+
+				if (!_database.giveKarma(id, karmaValue))
+				{
+					std::cout << "Error" << _database.getError() << std::endl;
+				}
+			}
 
 		} while (command != "exit");
 	}
