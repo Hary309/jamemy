@@ -18,6 +18,13 @@ if (WIN32)
     set (EXTRA_LIBS WS2_32)
 endif()
 
+if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
+    set (EXTRA_LIB pthread)
+elseif ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
+    set (EXTRA_LIB pthread)
+endif()
+
+
 target_link_libraries(
     IrcBot
     loguru
