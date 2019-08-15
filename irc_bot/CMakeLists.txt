@@ -14,14 +14,16 @@ include(vendor/mariadb-connector-c.cmake)
 include(vendor/re2.cmake)
 include(vendor/loguru.cmake)
 
+set (EXTRA_LIBS "")
+
 if (WIN32)
-    set (EXTRA_LIBS WS2_32)
+    string(CONCAT EXTRA_LIBS WS2_32)
 endif()
 
 if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
-    set (EXTRA_LIB pthread)
+    string(CONCAT EXTRA_LIBS pthread)
 elseif ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
-    set (EXTRA_LIB pthread)
+    string(CONCAT EXTRA_LIBS pthread)
 endif()
 
 
