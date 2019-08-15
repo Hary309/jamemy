@@ -5,8 +5,6 @@
 Database::Database()
 {
 	mysql_init(&_mysql);
-
-
 }
 
 Database::~Database()

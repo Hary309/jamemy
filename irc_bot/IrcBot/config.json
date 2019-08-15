@@ -8,6 +8,6 @@
     "poorchat": {
         "host": "irc.poorchat.net",
         "port": 6667,
-        "channel": "#jaharry"
+        "channel": "#jadisco"
     }
 }
