@@ -25,7 +25,7 @@ class KarmaSystem
 {
 	using KarmaActivites_t = std::vector<KarmaActive>;
 
-	static constexpr float MaxTimeout = 60.f;
+	static constexpr float MaxTimeout = 120.f;
 
 private:
 	Database& _database;

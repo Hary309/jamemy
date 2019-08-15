@@ -90,13 +90,12 @@ void KarmaSystem::karmaActiveThread()
 
 			while (it != _karmaActive.end())
 			{
-				LOG_F(INFO, "Removing active karma with id %llu by %s", it->memeId, it->authorName.c_str());
+				LOG_F(INFO, "Removing from getting karma id %llu by %s. Ended up with: %d karma", it->memeId, it->authorName.c_str(), it->karma);
 
 				it = _karmaActive.erase(it);
 
 				it = std::find_if(it, _karmaActive.end(), KarmaSystem::isKarmaTimedout);
 			}
-
 		}
 
 		std::this_thread::sleep_for(std::chrono::seconds(5));
