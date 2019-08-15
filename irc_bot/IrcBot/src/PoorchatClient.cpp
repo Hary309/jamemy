@@ -84,7 +84,7 @@ void PoorchatClient::findKarmaAction(const std::string& message, const std::stri
 
 	if (re2::RE2::PartialMatch(message, regex, &targetAuthorName))
 	{
-		//if (messageAuthor != targetAuthorName)
+		if (messageAuthor != targetAuthorName)
 		{
 			LOG_SCOPE_F(INFO, "Karma");
 			LOG_F(INFO, "%s gave %d karma to %s!", messageAuthor.c_str(), value, targetAuthorName.c_str());
