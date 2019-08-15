@@ -1,6 +1,6 @@
 ﻿#pragma once
 
-#include <regex>
+#include <re2/re2.h>
 
 #include "Socket.hpp"
 #include "Database/Database.hpp"
@@ -15,7 +15,7 @@ private:
 
 	bool _joinedChannel = false;
 
-	std::regex _privMsg_re {":(.*)!.* PRIVMSG (.*) :(.*)\r\n"};
+	re2::RE2 _privMsg_re{ ":(.*)!.* PRIVMSG .* :(.*)\r\n" };
 
 public:
 	PoorchatClient(Database& database);

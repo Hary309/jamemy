@@ -1,8 +1,16 @@
+
 #include "PoorchatClient.hpp"
 
 #include <string>
 #include <algorithm>
 #include <regex>
+
+// undefine windows' min function
+#undef min
+
+#include <re2/stringpiece.h>
+#include <re2/re2.h>
+
 
 PoorchatClient::PoorchatClient(Database& database)
 	: _database(database)
@@ -46,22 +54,15 @@ void PoorchatClient::update()
 			return;
 		}
 
-		std::smatch match;
+		std::string name, message;
 
-		if (std::regex_match(data, match, _privMsg_re))
+		if (re2::RE2::FullMatch(data, _privMsg_re, &name, &message))
 		{
-			if (match.size() == 4)
-			{
-				auto name = match[1].str();
-				auto channel = match[2].str();
-				auto message = match[3].str();
-
-				printf("Extra message: [%s] %s: %s\n", channel.c_str(), name.c_str(), message.c_str());
-			}
-			else
-			{
-				printf("Nope\n");
-			}
+			printf("Extra message: %s: %s\n", name.c_str(), message.c_str());
+		}
+		else
+		{
+			printf("nope\n");
 		}
 	}
 }

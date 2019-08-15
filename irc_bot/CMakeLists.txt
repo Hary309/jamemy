@@ -16,9 +16,18 @@ find_library(MARIADB_LIBRARY
                 PATH_SUFFIXES . Debug Release
                 )
 
+find_library(RE2_LIBRARY
+                NAMES re2 libre2
+                HINTS ${CMAKE_SOURCE_DIR}/vendor/re2
+                PATH_SUFFIXES . Debug Release)
+
 if (WIN32)
     set (EXTRA_LIBS WS2_32)
 endif()
 
-target_link_libraries(IrcBot ${MARIADB_LIBRARY} ${EXTRA_LIBS})
-target_include_directories(IrcBot PUBLIC "IrcBot/src" "${CMAKE_SOURCE_DIR}/vendor/mariadb-connector-c/include")
+target_link_libraries(IrcBot ${MARIADB_LIBRARY} ${RE2_LIBRARY} ${EXTRA_LIBS})
+target_include_directories(IrcBot PUBLIC
+                            "IrcBot/src"
+                            "${CMAKE_SOURCE_DIR}/vendor/mariadb-connector-c/include"
+                            "${CMAKE_SOURCE_DIR}/vendor/re2"
+                            )
