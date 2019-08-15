@@ -7,3 +7,6 @@
 [submodule "irc_bot/vendor/json"]
 	path = irc_bot/vendor/json
 	url = https://github.com/nlohmann/json.git
+[submodule "irc_bot/vendor/mariadb-connector-c"]
+	path = irc_bot/vendor/mariadb-connector-c
+	url = https://github.com/MariaDB/mariadb-connector-c.git
