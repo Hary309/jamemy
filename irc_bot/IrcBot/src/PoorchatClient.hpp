@@ -16,6 +16,7 @@ private:
 	bool _joinedChannel = false;
 
 	re2::RE2 _privMsg_re{ ":(.*)!.* PRIVMSG .* :(.*)\r\n" };
+	re2::RE2 _url_re{ "\\b(([\\w-]+:\\/\\/?|www[.])[^\\s()<>]+(?:\\([\\w\\d]+\\)|([^[:punct:]\\s]|\\/)))" };
 
 public:
 	PoorchatClient(Database& database);

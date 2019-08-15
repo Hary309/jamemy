@@ -58,7 +58,13 @@ void PoorchatClient::update()
 
 		if (re2::RE2::FullMatch(data, _privMsg_re, &name, &message))
 		{
-			printf("Extra message: %s: %s\n", name.c_str(), message.c_str());
+			std::string url;
+
+			// find url
+			if (re2::RE2::PartialMatch(message, _url_re, &url))
+			{
+				printf("URL: %s\n", url.c_str());
+			}
 		}
 		else
 		{
