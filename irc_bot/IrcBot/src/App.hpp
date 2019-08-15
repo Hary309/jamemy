@@ -2,7 +2,7 @@
 
 #include "Database/Database.hpp"
 #include "KarmaSystem.hpp"
-#include "PoorchatClient.hpp"
+#include "IRC/PoorchatClient.hpp"
 
 class App
 {

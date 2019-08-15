@@ -62,6 +62,11 @@ void PoorchatClient::update()
 
 		if (re2::RE2::FullMatch(data, _privMsg_re, &name, &message))
 		{
+			if (name == "Pancernik")
+			{
+				return;
+			}
+
 			// find url
 			{
 				std::string url;
