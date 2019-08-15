@@ -6,23 +6,44 @@
 
 #include <loguru.hpp>
 
+#include "Config.hpp"
+
 App::App() : _karmaSystem(_database), _client(_karmaSystem)
 {
 }
 
 bool App::init()
 {
-	LOG_F(INFO, "Connecting to database...");
+	LOG_F(INFO, "Loading config from file config.json...");
 
-	if (!_database.connect("127.0.0.1", "root", "", "jamemy"))
+	if (!Config::load("config.json"))
+	{
+		LOG_F(ERROR, "Cannot load config!");
+		return false;
+	}
+
+	const auto& dbCfg = Config::database;
+
+	LOG_F(INFO, "Connecting to database Host: '%s', User: '%s', Password: '%s', Database: '%s'...", 
+		dbCfg.host.c_str(), 
+		dbCfg.user.c_str(), 
+		dbCfg.password.c_str(), 
+		dbCfg.database.c_str());
+
+	if (!_database.connect(dbCfg.host.c_str(), dbCfg.user.c_str(), dbCfg.password.c_str(), dbCfg.database.c_str()))
 	{
 		LOG_F(ERROR, "Cannot connet to database!");
 		return false;
 	}
 
-	LOG_F(INFO, "Connecting to IRC...");
+	const auto& pcCfg = Config::poorchat;
 
-	if (!_client.connect())
+	LOG_F(INFO, "Connecting to IRC %s:%d %s...", 
+		pcCfg.host.c_str(), 
+		pcCfg.port, 
+		pcCfg.channel.c_str());
+
+	if (!_client.connect(pcCfg.host.c_str(), pcCfg.port, pcCfg.channel.c_str()))
 	{
 		LOG_F(ERROR, "Cannot connet to IRC!");
 		return false;

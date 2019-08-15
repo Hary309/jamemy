@@ -20,15 +20,16 @@ PoorchatClient::PoorchatClient(KarmaSystem& karmaSystem)
 	_client.init();
 }
 
-bool PoorchatClient::connect()
+bool PoorchatClient::connect(const char* ip, short port, const char* channel)
 {
-	if (_client.connect("irc.poorchat.net", 6667))
+	_channelToJoin = channel;
+
+	if (_client.connect(ip, port))
 	{
 		_client.send("USER IrcBotUser 8 * :IRC Client\r\n");
 
 		return true;
 	}
-
 	return false;
 }
 
@@ -42,7 +43,7 @@ void PoorchatClient::update()
 
 		if (!_joinedChannel)
 		{
-			_client.send("JOIN #jaharry\r\n");
+			_client.send(("JOIN " + _channelToJoin + "\r\n").c_str());
 			_joinedChannel = true;
 		}
 

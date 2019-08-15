@@ -31,4 +31,5 @@ target_include_directories(IrcBot PUBLIC
                             "${CMAKE_SOURCE_DIR}/vendor/mariadb-connector-c/include"
                             "${CMAKE_SOURCE_DIR}/vendor/re2"
                             "${CMAKE_SOURCE_DIR}/vendor/loguru"
+                            "${CMAKE_SOURCE_DIR}/vendor/json/single_include"
                             )

@@ -16,6 +16,8 @@ private:
 
 	bool _joinedChannel = false;
 
+	std::string _channelToJoin;
+
 	re2::RE2 _privMsg_re{ ":(.*)!.* PRIVMSG .* :(.*)\r\n" };
 	re2::RE2 _url_re{ "\\b(([\\w-]+:\\/\\/?|www[.])[^\\s()<>]+(?:\\([\\w\\d]+\\)|([^[:punct:]\\s]|\\/)))" };
 	re2::RE2 _karmaPlus_re{ "([a-zA-Z0-9_]+) *,* *\\+\\+" };
@@ -24,7 +26,7 @@ private:
 public:
 	PoorchatClient(KarmaSystem& karmaSystem);
 
-	bool connect();
+	bool connect(const char* ip, short port, const char* channel);
 
 	void update();
 

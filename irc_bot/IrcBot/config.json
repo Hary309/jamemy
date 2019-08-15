@@ -1,0 +1,13 @@
+{
+    "database": {
+        "host": "localhost",
+        "user": "root",
+        "password": "",
+        "database": "jamemy"
+    },
+    "poorchat": {
+        "host": "irc.poorchat.net",
+        "port": 6667,
+        "channel": "#jaharry"
+    }
+}

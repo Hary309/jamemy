@@ -4,3 +4,6 @@
 [submodule "irc_bot/vendor/loguru"]
 	path = irc_bot/vendor/loguru
 	url = https://github.com/emilk/loguru.git
+[submodule "irc_bot/vendor/json"]
+	path = irc_bot/vendor/json
+	url = https://github.com/nlohmann/json.git
