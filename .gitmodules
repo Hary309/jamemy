@@ -1,0 +1,3 @@
+[submodule "irc_bot/vendor/re2"]
+	path = irc_bot/vendor/re2
+	url = https://github.com/google/re2.git
