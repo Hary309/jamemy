@@ -80,7 +80,7 @@ std::optional<Author> Database::getAuthor(const std::string& name)
 
 Id Database::addMeme(Id authorId, const std::string& memeUrl)
 {
-	auto query = "INSERT INTO meme VALUES (NULL, " + std::to_string(authorId) + ", '" + memeUrl + "', 0);";
+	auto query = "INSERT INTO meme VALUES (NULL, " + std::to_string(authorId) + ", '" + memeUrl + "', 0, NOW());";
 
 	if (mysql_query(&_mysql, query.c_str()) == 0)
 	{
