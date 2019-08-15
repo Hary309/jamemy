@@ -90,7 +90,7 @@ void KarmaSystem::karmaActiveThread()
 
 			while (it != _karmaActive.end())
 			{
-				LOG_F(INFO, "Removing active karma with id %d by %s", it->memeId, it->authorName.c_str());
+				LOG_F(INFO, "Removing active karma with id %llu by %s", it->memeId, it->authorName.c_str());
 
 				it = _karmaActive.erase(it);
 
