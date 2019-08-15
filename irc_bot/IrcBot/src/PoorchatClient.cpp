@@ -10,6 +10,8 @@
 #include <re2/stringpiece.h>
 #include <re2/re2.h>
 
+#include <loguru.hpp>
+
 #include "KarmaSystem.hpp"
 
 PoorchatClient::PoorchatClient(KarmaSystem& karmaSystem)
@@ -35,7 +37,8 @@ void PoorchatClient::update()
 	if (_client.isConnected())
 	{
 		auto data = _client.receive();
-		std::cout << data;
+		LOG_F(9, "Chat: %s", data.c_str());
+
 
 		if (!_joinedChannel)
 		{
@@ -47,7 +50,7 @@ void PoorchatClient::update()
 		{
 			auto pong = "PONG " + data.substr(5);
 
-			std::cout << "" << pong;
+			LOG_F(9, "Chat: %s", pong.c_str());
 
 			_client.send(pong.c_str());
 
@@ -72,10 +75,6 @@ void PoorchatClient::update()
 			findKarmaAction(message, name, _karmaPlus_re, 1);
 			findKarmaAction(message, name, _karmaMinus_re, -1);
 		}
-		else
-		{
-			printf("nope\n");
-		}
 	}
 }
 
@@ -87,7 +86,8 @@ void PoorchatClient::findKarmaAction(const std::string& message, const std::stri
 	{
 		//if (messageAuthor != targetAuthorName)
 		{
-			printf("Give %d from %s to %s!\n", value, messageAuthor.c_str(), targetAuthorName.c_str());
+			LOG_SCOPE_F(INFO, "Karma");
+			LOG_F(INFO, "%s gave %d karma to %s!", messageAuthor.c_str(), value, targetAuthorName.c_str());
 			_karmaSystem.giveKarma(targetAuthorName, value);
 		}
 	}

@@ -1,3 +1,6 @@
 [submodule "irc_bot/vendor/re2"]
 	path = irc_bot/vendor/re2
 	url = https://github.com/google/re2.git
+[submodule "irc_bot/vendor/loguru"]
+	path = irc_bot/vendor/loguru
+	url = https://github.com/emilk/loguru.git

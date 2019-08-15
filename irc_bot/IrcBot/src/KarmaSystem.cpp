@@ -2,6 +2,8 @@
 
 #include <algorithm>
 
+#include <loguru.hpp>
+
 #include "Database/Database.hpp"
 
 KarmaSystem::KarmaSystem(Database& database)
@@ -23,22 +25,24 @@ void KarmaSystem::addLink(const std::string& authorName, const std::string& url)
 
 		if (!author.has_value())
 		{
-			printf("Cannot find and add author :(\n");
+			LOG_F(WARNING, "Cannot find and add author with name %s :(", authorName.c_str());
+
 			return;
 		}
 
-		printf("Added author %s\n", author.value().name.c_str());
+
+		LOG_F(INFO, "Added author %s", authorName.c_str());
 	}
 
 	auto memeId = _database.addMeme(author.value().id, url);
 
 	if (memeId == 0)
 	{
-		printf("Cannot add meme :( (%s)\n", _database.getError());
+		LOG_F(WARNING, "Cannot add meme :( (%s)", _database.getError());
 		return;
 	}
 
-	printf("Added meme: %s\n", url.c_str());
+	LOG_F(INFO, "Added meme: %s", url.c_str());
 
 	_karmaActive.emplace_back<KarmaActive>({author.value().id, authorName, memeId, 0, std::chrono::high_resolution_clock::now() });
 }
@@ -55,7 +59,7 @@ void KarmaSystem::giveKarma(const std::string& targetAuthorName, int value)
 
 		std::chrono::duration<float> duration = std::chrono::high_resolution_clock::now() - karmaActive.startTime;
 
-		printf("Time left: %f\n", 60.f - duration.count());
+		LOG_F(INFO, "Time left: %f", 60.0 - duration.count());
 
 		if (duration.count() > 60.f)
 		{
@@ -65,7 +69,7 @@ void KarmaSystem::giveKarma(const std::string& targetAuthorName, int value)
 
 		karmaActive.karma += value;
 
-		printf("%s's meme (%lld) have %d karma\n", targetAuthorName.c_str(), karmaActive.memeId, karmaActive.karma);
+		LOG_F(INFO, "%s's meme (%lld) have %d karma", targetAuthorName.c_str(), karmaActive.memeId, karmaActive.karma);
 
 		_database.setKarma(karmaActive.memeId, karmaActive.karma);
 	}

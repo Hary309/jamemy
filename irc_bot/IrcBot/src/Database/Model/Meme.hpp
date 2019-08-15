@@ -8,7 +8,7 @@
 
 struct Meme
 {
-	int id;
+	Id id;
 	Author author;
 	std::string url;
 	int karma;
