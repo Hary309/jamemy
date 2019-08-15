@@ -1,12 +1,14 @@
 ﻿#pragma once
 
 #include "Database/Database.hpp"
+#include "KarmaSystem.hpp"
 #include "PoorchatClient.hpp"
 
 class App
 {
 private:
 	Database _database;
+	KarmaSystem _karmaSystem;
 
 	PoorchatClient _client;
 

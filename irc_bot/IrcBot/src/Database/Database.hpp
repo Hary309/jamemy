@@ -27,7 +27,7 @@ public:
 	Id addMeme(Id authorId, const std::string& memeUrl);
 	std::optional<Meme> getMeme(Id memeId);
 
-	bool giveKarma(Id memeId, int value);
+	bool setKarma(Id memeId, int value);
 
 	uint32_t getErrno();
 	const char* getError();

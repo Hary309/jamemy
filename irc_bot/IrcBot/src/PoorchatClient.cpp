@@ -1,4 +1,3 @@
-
 #include "PoorchatClient.hpp"
 
 #include <string>
@@ -11,9 +10,10 @@
 #include <re2/stringpiece.h>
 #include <re2/re2.h>
 
+#include "KarmaSystem.hpp"
 
-PoorchatClient::PoorchatClient(Database& database)
-	: _database(database)
+PoorchatClient::PoorchatClient(KarmaSystem& karmaSystem)
+	: _karmaSystem(karmaSystem)
 {
 	_client.init();
 }
@@ -58,17 +58,37 @@ void PoorchatClient::update()
 
 		if (re2::RE2::FullMatch(data, _privMsg_re, &name, &message))
 		{
-			std::string url;
-
 			// find url
-			if (re2::RE2::PartialMatch(message, _url_re, &url))
 			{
-				printf("URL: %s\n", url.c_str());
+				std::string url;
+
+				if (re2::RE2::PartialMatch(message, _url_re, &url))
+				{
+					_karmaSystem.addLink(name, url);
+				}
 			}
+
+			// find plus karma
+			findKarmaAction(message, name, _karmaPlus_re, 1);
+			findKarmaAction(message, name, _karmaMinus_re, -1);
 		}
 		else
 		{
 			printf("nope\n");
+		}
+	}
+}
+
+void PoorchatClient::findKarmaAction(const std::string& message, const std::string& messageAuthor, const re2::RE2& regex, int value)
+{
+	std::string targetAuthorName;
+
+	if (re2::RE2::PartialMatch(message, regex, &targetAuthorName))
+	{
+		//if (messageAuthor != targetAuthorName)
+		{
+			printf("Give %d from %s to %s!\n", value, messageAuthor.c_str(), targetAuthorName.c_str());
+			_karmaSystem.giveKarma(targetAuthorName, value);
 		}
 	}
 }

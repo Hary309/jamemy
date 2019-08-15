@@ -121,21 +121,13 @@ std::optional<Meme> Database::getMeme(Id memeId)
 	return {};
 }
 
-bool Database::giveKarma(Id memeId, int value)
+bool Database::setKarma(Id memeId, int value)
 {
-	auto result = getMeme(memeId);
+	auto query = "UPDATE meme SET karma = " + std::to_string(value) + " WHERE id = " + std::to_string(memeId);
 
-	if (result.has_value())
+	if (mysql_query(&_mysql, query.c_str()) == 0)
 	{
-		auto meme = result.value();
-		auto newKarma = meme.karma + value;
-
-		auto query = "UPDATE meme SET karma = " + std::to_string(newKarma) + " WHERE id = " + std::to_string(memeId);
-
-		if (mysql_query(&_mysql, query.c_str()) == 0)
-		{
-			return true;
-		}
+		return true;
 	}
 
 	return false;

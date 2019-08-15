@@ -4,8 +4,7 @@
 #include <thread>
 #include <chrono>
 
-App::App()
-	: _client(_database)
+App::App() : _karmaSystem(_database), _client(_karmaSystem)
 {
 }
 

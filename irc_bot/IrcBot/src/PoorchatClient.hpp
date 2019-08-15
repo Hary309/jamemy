@@ -3,13 +3,14 @@
 #include <re2/re2.h>
 
 #include "Socket.hpp"
-#include "Database/Database.hpp"
+
+class KarmaSystem;
 
 class PoorchatClient
 {
 private:
 	Socket _client;
-	Database& _database;
+	KarmaSystem& _karmaSystem;
 
 	int _stage = 0;
 
@@ -17,14 +18,16 @@ private:
 
 	re2::RE2 _privMsg_re{ ":(.*)!.* PRIVMSG .* :(.*)\r\n" };
 	re2::RE2 _url_re{ "\\b(([\\w-]+:\\/\\/?|www[.])[^\\s()<>]+(?:\\([\\w\\d]+\\)|([^[:punct:]\\s]|\\/)))" };
+	re2::RE2 _karmaPlus_re{ "([a-zA-Z0-9_]+) *,* *\\+\\+" };
+	re2::RE2 _karmaMinus_re{ "([a-zA-Z0-9_]+) *,* *\\-\\-" };
 
 public:
-	PoorchatClient(Database& database);
+	PoorchatClient(KarmaSystem& karmaSystem);
 
 	bool connect();
 
 	void update();
 
 private:
-	void parse(const std::string& message);
+	void findKarmaAction(const std::string& message, const std::string& messageAuthor, const re2::RE2& regex, int value);
 };
