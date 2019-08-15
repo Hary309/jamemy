@@ -7,8 +7,18 @@
 #include "Database/Database.hpp"
 
 KarmaSystem::KarmaSystem(Database& database)
-	: _database(database)
+	: 
+	_database(database),
+	_karmaActiveThread(&KarmaSystem::karmaActiveThread, this)
 {
+
+}
+
+KarmaSystem::~KarmaSystem()
+{
+	_running = false;
+
+	_karmaActiveThread.join();
 }
 
 void KarmaSystem::addLink(const std::string& authorName, const std::string& url)
@@ -42,40 +52,60 @@ void KarmaSystem::addLink(const std::string& authorName, const std::string& url)
 		return;
 	}
 
-	LOG_F(INFO, "Added meme: %s", url.c_str());
+	LOG_F(INFO, "Added meme: %s by %s", url.c_str(), authorName.c_str());
 
 	_karmaActive.emplace_back<KarmaActive>({author.value().id, authorName, memeId, 0, std::chrono::high_resolution_clock::now() });
 }
 
 void KarmaSystem::giveKarma(const std::string& targetAuthorName, int value)
 {
-	std::vector<KarmaActivites_t::iterator> toDelete;
+	std::lock_guard<std::mutex> lock(_karmaActiveMutex);
 
 	auto it = std::find_if(_karmaActive.begin(), _karmaActive.end(), [&](KarmaActive& karmaActive) { return karmaActive.authorName == targetAuthorName; });
 
-	for (; it != _karmaActive.end(); it++)
+	while (it != _karmaActive.end())
 	{
 		auto& karmaActive = *it;
-
-		std::chrono::duration<float> duration = std::chrono::high_resolution_clock::now() - karmaActive.startTime;
-
-		LOG_F(INFO, "Time left: %f", 60.0 - duration.count());
-
-		if (duration.count() > 60.f)
-		{
-			toDelete.push_back(it);
-			continue;
-		}
 
 		karmaActive.karma += value;
 
 		LOG_F(INFO, "%s's meme (%lld) have %d karma", targetAuthorName.c_str(), karmaActive.memeId, karmaActive.karma);
 
 		_database.setKarma(karmaActive.memeId, karmaActive.karma);
-	}
 
-	for (auto& it : toDelete)
-	{
-		_karmaActive.erase(it);
+		it = std::find_if(++it, _karmaActive.end(), [&](KarmaActive& ka) { return ka.authorName == targetAuthorName; });
 	}
+}
+
+void KarmaSystem::karmaActiveThread()
+{
+	LOG_F(INFO, "Karma active thread started!");
+
+	while (_running)
+	{
+		{
+			std::lock_guard<std::mutex> lock(_karmaActiveMutex);
+
+			auto it = std::find_if(_karmaActive.begin(), _karmaActive.end(), KarmaSystem::isKarmaTimedout);
+
+			while (it != _karmaActive.end())
+			{
+				LOG_F(INFO, "Removing active karma with id %d by %s", it->memeId, it->authorName.c_str());
+
+				it = _karmaActive.erase(it);
+
+				it = std::find_if(it, _karmaActive.end(), KarmaSystem::isKarmaTimedout);
+			}
+
+		}
+
+		std::this_thread::sleep_for(std::chrono::seconds(5));
+	}
+}
+
+bool KarmaSystem::isKarmaTimedout(KarmaActive& karmaActive)
+{
+	std::chrono::duration<float> duration = std::chrono::high_resolution_clock::now() - karmaActive.startTime;
+
+	return duration.count() > MaxTimeout;
 }
