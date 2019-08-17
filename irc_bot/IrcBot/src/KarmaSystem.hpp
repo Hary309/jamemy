@@ -12,28 +12,29 @@
 
 class Database;
 
-struct KarmaActive
+struct KarmaCollector
 {
 	Id authorId;
 	std::string authorName;
-	Id memeId;
+	std::string imageUrl;
 	int karma;
 	std::chrono::time_point<std::chrono::steady_clock> startTime;
 };
 
 class KarmaSystem
 {
-	using KarmaActivites_t = std::vector<KarmaActive>;
+	using KarmaCollectors_t = std::vector<KarmaCollector>;
 
-	static constexpr float MaxTimeout = 120.f;
+	static constexpr float CollectionTIme = 120.f;
 
 private:
 	Database& _database;
+	std::mutex _databaseMutex;
 
-	KarmaActivites_t _karmaActive;
+	KarmaCollectors_t _karmaCollector;
 
-	std::mutex _karmaActiveMutex;
-	std::thread _karmaActiveThread;
+	std::mutex _karmaCollectorMutex;
+	std::thread _karmaCollectorThread;
 
 	std::atomic<bool> _running{ true };
 
@@ -46,7 +47,7 @@ public:
 	void giveKarma(const std::string& target, int value);
 
 private:
-	void karmaActiveThread();
+	void karmaCollectorThread();
 
-	static bool isKarmaTimedout(KarmaActive& karmaActive);
+	static bool isTimedOut(KarmaCollector& karmaCollector);
 };

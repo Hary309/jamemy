@@ -9,7 +9,7 @@
 KarmaSystem::KarmaSystem(Database& database)
 	: 
 	_database(database),
-	_karmaActiveThread(&KarmaSystem::karmaActiveThread, this)
+	_karmaCollectorThread(&KarmaSystem::karmaCollectorThread, this)
 {
 
 }
@@ -18,12 +18,14 @@ KarmaSystem::~KarmaSystem()
 {
 	_running = false;
 
-	_karmaActiveThread.join();
+	_karmaCollectorThread.join();
 }
 
 void KarmaSystem::addLink(const std::string& authorName, const std::string& url)
 {
 	std::optional<Author> author = { };
+
+	std::lock_guard<std::mutex> lock(_databaseMutex);
 
 	author = _database.getAuthor(authorName);
 
@@ -44,57 +46,68 @@ void KarmaSystem::addLink(const std::string& authorName, const std::string& url)
 		LOG_F(INFO, "Added author %s", authorName.c_str());
 	}
 
-	auto memeId = _database.addMeme(author.value().id, url);
+	LOG_F(INFO, "Started collecting karma for %s's meme (%s)", authorName.c_str(), url.c_str());
 
-	if (memeId == 0)
-	{
-		LOG_F(WARNING, "Cannot add meme :( (%s)", _database.getError());
-		return;
-	}
-
-	LOG_F(INFO, "Added meme: %s by %s", url.c_str(), authorName.c_str());
-
-	_karmaActive.emplace_back<KarmaActive>({author.value().id, authorName, memeId, 0, std::chrono::high_resolution_clock::now() });
+	_karmaCollector.emplace_back<KarmaCollector>({ author.value().id, authorName, url, 0, std::chrono::high_resolution_clock::now() });
 }
 
 void KarmaSystem::giveKarma(const std::string& targetAuthorName, int value)
 {
-	std::lock_guard<std::mutex> lock(_karmaActiveMutex);
+	std::lock_guard<std::mutex> lock(_karmaCollectorMutex);
 
-	auto it = std::find_if(_karmaActive.begin(), _karmaActive.end(), [&](KarmaActive& karmaActive) { return karmaActive.authorName == targetAuthorName; });
+	auto it = std::find_if(_karmaCollector.begin(), _karmaCollector.end(), [&](KarmaCollector& karmaCollector) { return karmaCollector.authorName == targetAuthorName; });
 
-	while (it != _karmaActive.end())
+	while (it != _karmaCollector.end())
 	{
-		auto& karmaActive = *it;
+		auto& karmaCollector = *it;
 
-		karmaActive.karma += value;
+		karmaCollector.karma += value;
 
-		LOG_F(INFO, "%s's meme (%lld) have %d karma", targetAuthorName.c_str(), karmaActive.memeId, karmaActive.karma);
+		LOG_F(INFO, "%s's meme have %d karma (%s)", targetAuthorName.c_str(), karmaCollector.karma, karmaCollector.imageUrl.c_str());
 
-		_database.setKarma(karmaActive.memeId, karmaActive.karma);
-
-		it = std::find_if(++it, _karmaActive.end(), [&](KarmaActive& ka) { return ka.authorName == targetAuthorName; });
+		it = std::find_if(++it, _karmaCollector.end(), [&](KarmaCollector& ka) { return ka.authorName == targetAuthorName; });
 	}
 }
 
-void KarmaSystem::karmaActiveThread()
+void KarmaSystem::karmaCollectorThread()
 {
-	LOG_F(INFO, "Karma active thread started!");
+	LOG_F(INFO, "Karma collector thread started!");
 
 	while (_running)
 	{
 		{
-			std::lock_guard<std::mutex> lock(_karmaActiveMutex);
+			std::lock_guard<std::mutex> lock(_karmaCollectorMutex);
 
-			auto it = std::find_if(_karmaActive.begin(), _karmaActive.end(), KarmaSystem::isKarmaTimedout);
+			auto it = std::find_if(_karmaCollector.begin(), _karmaCollector.end(), KarmaSystem::isTimedOut);
 
-			while (it != _karmaActive.end())
+			while (it != _karmaCollector.end())
 			{
-				LOG_F(INFO, "Removing from getting karma id %llu by %s. Ended up with: %d karma", it->memeId, it->authorName.c_str(), it->karma);
+				LOG_F(INFO, "%s's meme ended up with %d karma. (url: %s)", it->authorName.c_str(), it->karma, it->imageUrl.c_str());
 
-				it = _karmaActive.erase(it);
+				if (it->karma > 0)
+				{
+					LOG_F(INFO, "Adding to database");
 
-				it = std::find_if(it, _karmaActive.end(), KarmaSystem::isKarmaTimedout);
+					std::lock_guard<std::mutex> lock(_databaseMutex);
+					auto memeId = _database.addMeme(it->authorId, it->imageUrl);
+
+					if (memeId == 0)
+					{
+						LOG_F(WARNING, "Cannot add meme :(");
+					}
+					else
+					{
+						_database.setKarma(memeId, it->karma);
+					}
+				}
+				else
+				{
+					LOG_F(INFO, "Meme won't be added");
+				}
+
+				it = _karmaCollector.erase(it);
+
+				it = std::find_if(it, _karmaCollector.end(), KarmaSystem::isTimedOut);
 			}
 		}
 
@@ -102,9 +115,9 @@ void KarmaSystem::karmaActiveThread()
 	}
 }
 
-bool KarmaSystem::isKarmaTimedout(KarmaActive& karmaActive)
+bool KarmaSystem::isTimedOut(KarmaCollector& karmaCollector)
 {
-	std::chrono::duration<float> duration = std::chrono::high_resolution_clock::now() - karmaActive.startTime;
+	std::chrono::duration<float> duration = std::chrono::high_resolution_clock::now() - karmaCollector.startTime;
 
-	return duration.count() > MaxTimeout;
+	return duration.count() > CollectionTIme;
 }
