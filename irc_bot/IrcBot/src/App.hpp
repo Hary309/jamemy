@@ -1,8 +1,10 @@
 ﻿#pragma once
 
+#include "Config.hpp"
 #include "Database/Database.hpp"
 #include "KarmaSystem.hpp"
 #include "IRC/PoorchatClientV2.hpp"
+#include "SMTPClient.hpp"
 
 class App
 {
@@ -12,6 +14,8 @@ private:
 
 	PoorchatClientV2 _client;
 
+	SMTPClient _email;
+
 	bool _running = false;
 
 public:
@@ -19,4 +23,9 @@ public:
 
 	bool init();
 	void run();
+
+private:
+	bool initDatabase(Config::Database& dbCfg);
+	bool initPoorchatClient(Config::Poorchat& pcCfg);
+	bool initSMTPClient(Config::Email& emailCfg);
 };

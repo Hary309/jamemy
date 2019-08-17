@@ -9,7 +9,7 @@ using json = nlohmann::json;
 
 Config::Database Config::database;
 Config::Poorchat Config::poorchat;
-
+Config::Email Config::email;
 
 bool Config::load(const char* configFile)
 {
@@ -31,6 +31,13 @@ bool Config::load(const char* configFile)
 	poorchat.host = jsonPoorchat["host"];
 	poorchat.port = jsonPoorchat["port"];
 	poorchat.channel = jsonPoorchat["channel"];
+
+	auto jsonEmail = json["email"];
+	email.host = jsonEmail["host"];
+	email.port = jsonEmail["port"];
+	email.user = jsonEmail["user"];
+	email.password = jsonEmail["password"];
+	email.mailTo = jsonEmail["mailTo"];
 
 	return true;
 }

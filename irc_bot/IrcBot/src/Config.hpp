@@ -21,11 +21,20 @@ public:
 		std::string channel;
 	};
 
+	struct Email
+	{
+		std::string host;
+		std::string port;
+		std::string user;
+		std::string password;
+		std::string mailTo;
+	};
+
 public:
 	static Database database;
 	static Poorchat poorchat;
+	static Email email;
 
 public:
-
 	static bool load(const char* configFile);
 };

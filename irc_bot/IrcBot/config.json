@@ -9,5 +9,12 @@
         "host": "irc.poorchat.net",
         "port": 6667,
         "channel": "#jadisco"
+    },
+    "email": {
+        "host": "",
+        "port": "25",
+        "user": "",
+        "password": "",
+        "mailTo": ""
     }
 }

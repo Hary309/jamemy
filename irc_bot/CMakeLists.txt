@@ -15,6 +15,7 @@ include(vendor/mariadb-connector-c.cmake)
 include(vendor/re2.cmake)
 include(vendor/loguru.cmake)
 include(vendor/libircclient.cmake)
+include(vendor/smtp-client.cmake)
 
 set (EXTRA_LIBS "")
 
@@ -33,6 +34,7 @@ target_link_libraries(
     IrcBot
     loguru
     libircclient
+    smtp-client
     ${MARIADB_LIBRARY}
     ${RE2_LIBRARY}
     ${EXTRA_LIBS}
@@ -46,4 +48,5 @@ target_include_directories(IrcBot PUBLIC
                             "${CMAKE_SOURCE_DIR}/vendor/loguru"
                             "${CMAKE_SOURCE_DIR}/vendor/json/single_include"
                             "${CMAKE_SOURCE_DIR}/vendor/libircclient/include"
+                            "${CMAKE_SOURCE_DIR}/vendor/smtp-client/src"
                             )

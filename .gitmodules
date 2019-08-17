@@ -10,3 +10,6 @@
 [submodule "irc_bot/vendor/mariadb-connector-c"]
 	path = irc_bot/vendor/mariadb-connector-c
 	url = https://github.com/MariaDB/mariadb-connector-c.git
+[submodule "irc_bot/vendor/smtp-client"]
+	path = irc_bot/vendor/smtp-client
+	url = https://github.com/somnisoft/smtp-client.git
