@@ -3,6 +3,7 @@ cmake_minimum_required(VERSION 3.12)
 project(IrcBot)
 
 set(CMAKE_CXX_STANDARD 17)
+set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 
 file (GLOB_RECURSE IrcBot_src
         ${CMAKE_SOURCE_DIR}/IrcBot/src/*.cpp
@@ -34,7 +35,6 @@ target_link_libraries(
     libircclient
     ${MARIADB_LIBRARY}
     ${RE2_LIBRARY}
-    # ${IRCCLIENT_LIBRARY}
     ${EXTRA_LIBS}
 )
 

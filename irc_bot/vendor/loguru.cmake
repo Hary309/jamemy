@@ -5,3 +5,5 @@ add_library(
 )
 
 target_compile_definitions(loguru PRIVATE LOGURU_STACKTRACES=0)
+
+set_target_properties(loguru PROPERTIES FOLDER "vendor")
