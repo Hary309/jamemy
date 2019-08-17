@@ -82,6 +82,8 @@ void KarmaSystem::karmaCollectorThread()
 
 			while (it != _karmaCollector.end())
 			{
+				LOG_SCOPE_F(INFO, "Meme and database");
+
 				LOG_F(INFO, "%s's meme ended up with %d karma. (url: %s)", it->authorName.c_str(), it->karma, it->imageUrl.c_str());
 
 				if (it->karma > 0)

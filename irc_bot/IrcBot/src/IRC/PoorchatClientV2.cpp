@@ -14,21 +14,19 @@ PoorchatClientV2::PoorchatClientV2(KarmaSystem& karmaSystem)
 {
 }
 
+PoorchatClientV2::~PoorchatClientV2()
+{
+	shutdown();
+}
+
 bool PoorchatClientV2::init()
 {
-#ifdef WIN32
-	WSADATA wsaData;
-	if (WSAStartup(MAKEWORD(2, 2), &wsaData))
-	{
-		LOG_F(ERROR, "Unable to initialize Winsock.");
-		return false;
-	}
-#endif
-
 	_ircCallbacks.event_connect = PoorchatClientV2::ircEventConnect;
 	_ircCallbacks.event_channel = PoorchatClientV2::ircEventChannel;
 
 	_ircSession = irc_create_session(&_ircCallbacks);
+	irc_option_set(_ircSession, LIBIRC_OPTION_STRIPNICKS);
+
 
 	if (!_ircSession)
 	{
@@ -39,6 +37,14 @@ bool PoorchatClientV2::init()
 	irc_set_ctx(_ircSession, this);
 
 	return true;
+}
+
+void PoorchatClientV2::shutdown()
+{
+	if (_ircSession != nullptr)
+	{
+		irc_destroy_session(_ircSession);
+	}
 }
 
 bool PoorchatClientV2::connect(const char* ip, short port, const char* channel)
@@ -52,6 +58,14 @@ bool PoorchatClientV2::connect(const char* ip, short port, const char* channel)
 
 void PoorchatClientV2::reconnect()
 {
+	shutdown();
+	
+	if (!init())
+	{
+		LOG_F(INFO, "Cannot reinit IRC Client");
+		return;
+	}
+
 	LOG_F(INFO, "Reconnecting...");
 
 	if (irc_connect(_ircSession, _ip.c_str(), _port, 0, "Bot", 0, 0) != 0)
@@ -70,17 +84,9 @@ void PoorchatClientV2::joinChannel()
 
 void PoorchatClientV2::processMsg(const char* userName, const char* msg)
 {
-	std::string realUserName = userName;
+	LOG_F(9, "%s: %s", userName, msg);
 
-	auto pos = realUserName.find('!');
-	if (pos != std::string::npos)
-	{
-		realUserName = realUserName.substr(0, pos);
-	}
-
-	LOG_F(9, "%s: %s", realUserName.c_str(), msg);
-
-	if (realUserName == "Pancernik")
+	if (strcmp(userName, "Pancernik") == 0)
 	{
 		return;
 	}
@@ -91,13 +97,13 @@ void PoorchatClientV2::processMsg(const char* userName, const char* msg)
 
 		if (re2::RE2::PartialMatch(msg, _url_re, &url))
 		{
-			_karmaSystem.addLink(realUserName, url);
+			_karmaSystem.addLink(userName, url);
 		}
 	}
 
 	// find plus karma
-	findKarmaAction(msg, realUserName, _karmaPlus_re, 1);
-	findKarmaAction(msg, realUserName, _karmaMinus_re, -1);
+	findKarmaAction(msg, userName, _karmaPlus_re, 1);
+	findKarmaAction(msg, userName, _karmaMinus_re, -1);
 }
 
 void PoorchatClientV2::findKarmaAction(const std::string& message, const std::string& messageAuthor, const re2::RE2& regex, int value)
@@ -119,9 +125,17 @@ void PoorchatClientV2::run()
 {
 	while (irc_run(_ircSession) != 0)
 	{
-		LOG_F(INFO, "Could not connect or I/O error:  %s", getError());
+		if (_maxErrorCount <= 0)
+		{
+			LOG_F(INFO, "Application is dead. Restart it manually");
+			return;
+		}
+
+		LOG_F(INFO, "Could not connect or I/O error: %s", getError());
 
 		reconnect();
+
+		_maxErrorCount--;
 	}
 }
 

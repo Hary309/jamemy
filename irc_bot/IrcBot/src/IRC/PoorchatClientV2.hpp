@@ -23,10 +23,14 @@ private:
 	re2::RE2 _karmaPlus_re{ "([a-zA-Z0-9_]+) *,* *\\+\\+" };
 	re2::RE2 _karmaMinus_re{ "([a-zA-Z0-9_]+) *,* *\\-\\-" };
 
+	int _maxErrorCount = 5;
+
 public:
 	PoorchatClientV2(KarmaSystem& karmaSystem);
+	~PoorchatClientV2();
 
 	bool init();
+	void shutdown();
 
 	bool connect(const char* ip, short port, const char* channel);
 
