@@ -1,4 +1,6 @@
 config_production.json
+vendor/libircclient/*
+!vendor/libircclient/.gitkeep
 
 CMakeLists.txt.user
 CMakeCache.txt

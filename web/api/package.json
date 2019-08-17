@@ -1,7 +1,7 @@
 {
-  "name": "jamemy",
+  "name": "jamemy-api",
   "version": "1.0.0",
-  "description": "Kolekcja memów z poorchata",
+  "description": "Api dla strony jamemy",
   "main": "app.js",
   "scripts": {
     "dev": "nodemon app.js"
@@ -10,7 +10,6 @@
   "license": "ISC",
   "dependencies": {
     "body-parser": "^1.19.0",
-    "ejs": "^2.6.2",
     "express": "^4.17.1",
     "mysql": "^2.17.1",
     "req-flash": "0.0.3"
