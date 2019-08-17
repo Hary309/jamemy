@@ -4,12 +4,9 @@
 #include <thread>
 #include <chrono>
 
-
-#undef std::min
 #include <loguru.hpp>
 
 #include "Config.hpp"
-
 
 App::App() : _karmaSystem(_database), _client(_karmaSystem)
 {
