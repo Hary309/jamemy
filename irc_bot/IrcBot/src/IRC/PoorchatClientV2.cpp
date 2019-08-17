@@ -1,6 +1,8 @@
 #include "PoorchatClientV2.hpp"
 
+#ifdef WIN32
 #include <WinSock2.h>
+#endif
 
 #include <loguru.hpp>
 #include <libircclient.h>
