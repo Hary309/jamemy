@@ -13,6 +13,7 @@ add_executable(IrcBot ${IrcBot_src})
 include(vendor/mariadb-connector-c.cmake)
 include(vendor/re2.cmake)
 include(vendor/loguru.cmake)
+include(vendor/libircclient.cmake)
 
 set (EXTRA_LIBS "")
 
@@ -30,8 +31,10 @@ endif()
 target_link_libraries(
     IrcBot
     loguru
+    libircclient
     ${MARIADB_LIBRARY}
     ${RE2_LIBRARY}
+    # ${IRCCLIENT_LIBRARY}
     ${EXTRA_LIBS}
 )
 
@@ -42,4 +45,5 @@ target_include_directories(IrcBot PUBLIC
                             "${CMAKE_SOURCE_DIR}/vendor/re2"
                             "${CMAKE_SOURCE_DIR}/vendor/loguru"
                             "${CMAKE_SOURCE_DIR}/vendor/json/single_include"
+                            "${CMAKE_SOURCE_DIR}/vendor/libircclient/include"
                             )

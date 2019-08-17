@@ -4,9 +4,12 @@
 #include <thread>
 #include <chrono>
 
+
+#undef std::min
 #include <loguru.hpp>
 
 #include "Config.hpp"
+
 
 App::App() : _karmaSystem(_database), _client(_karmaSystem)
 {
@@ -42,10 +45,16 @@ bool App::init()
 		pcCfg.host.c_str(), 
 		pcCfg.port, 
 		pcCfg.channel.c_str());
+	
+	if (!_client.init())
+	{
+		LOG_F(ERROR, "Cannot init IRC Client!");
+		return false;
+	}
 
 	if (!_client.connect(pcCfg.host.c_str(), pcCfg.port, pcCfg.channel.c_str()))
 	{
-		LOG_F(ERROR, "Cannot connet to IRC!");
+		LOG_F(ERROR, "Cannot connet to IRC! (%s)", _client.getError());
 		return false;
 	}
 
@@ -56,15 +65,5 @@ bool App::init()
 
 void App::run()
 {
-	using namespace std::literals::chrono_literals;
-
-	std::string command;
-
-	LOG_F(INFO, "Application started!");
-	while (_running)
-	{
-		_client.update();
-
-		std::this_thread::sleep_for(10ms);
-	}
+	_client.run();
 }
