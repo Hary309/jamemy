@@ -1,15 +1,19 @@
 const express = require("express");
+const cors = require("cors");
 const mysql = require("mysql");
+const fs = require("fs");
 
 const app = express();
 
 const port = 5000;
 
+let config = JSON.parse(fs.readFileSync("config.json"));
+
 const db = mysql.createConnection({
-    host: "localhost",
-    user: "root",
-    password: "",
-    database: "jamemy"
+    host: config.host,
+    user: config.user,
+    password: config.password,
+    database: config.database
 });
 
 db.connect((err) => {
@@ -20,21 +24,22 @@ db.connect((err) => {
     console.log("Connected to database!");
 });
 
+app.use(cors());
 app.set("port", port);
 
-app.get("/today", (req, res) => {
+app.get("/today", cors(), (req, res) => {
     let where = "WHERE meme.date BETWEEN curdate() and curdate() + interval 24 hour";
 
     sendData(where, res);
 });
 
-app.get("/yesterday", (req, res) => {
+app.get("/yesterday", cors(), (req, res) => {
     let where = "WHERE meme.date BETWEEN curdate() - interval 1 day and curdate()";
 
     sendData(where, res);
 });
 
-app.get("/last14days", (req, res) => {
+app.get("/last14days", cors(), (req, res) => {
     let where = "WHERE meme.date BETWEEN curdate() - interval 14 day and curdate()";
 
     sendData(where, res);
