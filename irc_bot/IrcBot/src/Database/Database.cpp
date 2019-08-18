@@ -93,7 +93,7 @@ Id Database::addMeme(Id authorId, const std::string& memeUrl)
 std::optional<Meme> Database::getMeme(Id memeId)
 {
 	auto query =
-		"SELECT meme.id, author.id, author.name, meme.image_url, meme.karma "
+		"SELECT meme.id, author.id, author.name, meme.url, meme.karma "
 		"FROM meme "
 		"JOIN author ON meme.author_id = author.id "
 		"WHERE meme.id = " + std::to_string(memeId);
