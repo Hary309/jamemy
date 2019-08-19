@@ -2,6 +2,7 @@ const express = require("express");
 const cors = require("cors");
 const mysql = require("mysql");
 const fs = require("fs");
+const isnumber = require("isnumber");
 
 const app = express();
 
@@ -47,28 +48,42 @@ app.get("/last14days", cors(), (req, res) => {
 
 
 app.get("/month/:month/year/:year", (req, res) => {
+    let year = req.params.year;
+    let month = req.params.month;
+
+    if (!isnumber(year))
+    {
+        sendEmpty();
+        return;
+    }
+
+    if (!isnumber(month))
+    {
+        sendEmpty();
+        return;
+    }
+
     let where = `
     WHERE meme.date BETWEEN
-    "${req.params.year}-${req.params.month}-01" and 
-    "${req.params.year}-${req.params.month}-01" + interval 1 month - interval 1 second`;
+    "${year}-${month}-01" and 
+    "${year}-${month}-01" + interval 1 month - interval 1 second`;
 
     sendData(where, res);
 });
 
 app.get("/year/:year", (req, res) => {
+    let year = req.params.year;
+
+    if (!isnumber(year))
+    {
+        sendEmpty();
+        return;
+    }
+
     let where = `
     WHERE meme.date BETWEEN
-    "${req.params.year}-01-01" and 
-    "${req.params.year}-01-01" + interval 12 month - interval 1 second`;
-
-    sendData(where, res);
-});
-
-app.get("/between/:start/:end", (req, res) => {
-    let where = `
-    WHERE meme.date BETWEEN
-    "${req.params.start}" and 
-    "${req.params.end}"`;
+    "${year}-01-01" and 
+    "${year}-01-01" + interval 12 month - interval 1 second`;
 
     sendData(where, res);
 });
@@ -93,4 +108,9 @@ function sendData(dateFilter, res)
 
         res.status(200).send(result);
     });
+}
+
+function sendEmpty()
+{
+    res.status(200).send({});
 }
