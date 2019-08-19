@@ -21,7 +21,7 @@ public:
 		std::string channel;
 	};
 
-	struct Email
+	struct Mail
 	{
 		std::string host;
 		std::string port;
@@ -33,7 +33,7 @@ public:
 public:
 	static Database database;
 	static Poorchat poorchat;
-	static Email email;
+	static Mail mail;
 
 public:
 	static bool load(const char* configFile);

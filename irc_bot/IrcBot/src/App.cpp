@@ -31,7 +31,7 @@ bool App::init()
 		return false;
 	}
 
-	if (!initSMTPClient(Config::email))
+	if (!initSMTPClient(Config::mail))
 	{
 		LOG_F(ERROR, "Cannot init SMTP Client!");
 	}
@@ -86,7 +86,7 @@ bool App::initPoorchatClient(Config::Poorchat& cfg)
 	return true;
 }
 
-bool App::initSMTPClient(Config::Email& cfg)
+bool App::initSMTPClient(Config::Mail& cfg)
 {
 	LOG_F(INFO, "Initializing SMTP Client %s:%s User: '%s' Password: '%s' mailTo: '%s'...",
 		cfg.host.c_str(),

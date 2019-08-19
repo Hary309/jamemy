@@ -27,5 +27,5 @@ public:
 private:
 	bool initDatabase(Config::Database& dbCfg);
 	bool initPoorchatClient(Config::Poorchat& pcCfg);
-	bool initSMTPClient(Config::Email& emailCfg);
+	bool initSMTPClient(Config::Mail& emailCfg);
 };
