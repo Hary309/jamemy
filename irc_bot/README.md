@@ -4,15 +4,15 @@ Bot zbiera i zapisuje najbardziej lubiane linki z czatu
 
 ## Jak skompilować
 
-Pobierz [libircclient](https://sourceforge.net/projects/libircclient/files/libircclient/1.10/libircclient-1.10.tar.gz/download) i wypakuj do folderu `vendor/libircclient`
-
-### Sklonuj repozytorium
+Sklonuj repozytorium
 
 ```bash
 git clone https://github.com/Harry09/jamemy
 cd jamemy
 git submodule update --init --recursive
 ```
+
+Pobierz [libircclient](https://sourceforge.net/projects/libircclient/files/libircclient/1.10/libircclient-1.10.tar.gz/download) i wypakuj do folderu `vendor/libircclient`
 
 ### Kompilacja mariadb-connector-c
 
