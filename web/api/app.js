@@ -2,7 +2,7 @@ const express = require("express");
 const cors = require("cors");
 const mysql = require("mysql");
 const fs = require("fs");
-const isnumber = require("isnumber");
+const isnumber = require("is-number");
 
 const app = express();
 
