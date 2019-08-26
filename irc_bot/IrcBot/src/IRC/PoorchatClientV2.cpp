@@ -60,6 +60,10 @@ void PoorchatClientV2::reconnect()
 {
 	shutdown();
 	
+	LOG_F(INFO, "Reconnect in 5 second...");
+
+	std::this_thread::sleep_for(std::chrono::seconds(5));
+
 	if (!init())
 	{
 		LOG_F(INFO, "Cannot reinit IRC Client");
@@ -157,6 +161,8 @@ void PoorchatClientV2::ircEventConnect(irc_session_t* session, const char* event
 	LOG_F(INFO, "Connected to server!");
 
 	ctx->joinChannel();
+
+	ctx->_maxErrorCount = 5;
 }
 
 void PoorchatClientV2::ircEventChannel(irc_session_t* session, const char* event, const char* origin, const char** params, unsigned int count)
