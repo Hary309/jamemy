@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 
 #include <string>
 #include <vector>
@@ -25,7 +25,7 @@ class KarmaSystem
 {
 	using KarmaCollectors_t = std::vector<KarmaCollector>;
 
-	static constexpr float CollectionTIme = 120.f;
+	static constexpr float CollectionTime = 70.f;
 
 private:
 	Database& _database;
