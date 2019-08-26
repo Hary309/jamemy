@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #include <string>
 #include <vector>
@@ -17,6 +17,7 @@ struct KarmaCollector
 	Id authorId;
 	std::string authorName;
 	std::string imageUrl;
+	std::string message;
 	int karma;
 	std::chrono::time_point<std::chrono::steady_clock> startTime;
 };
@@ -42,7 +43,7 @@ public:
 	KarmaSystem(Database& database);
 	~KarmaSystem();
 
-	void addLink(const std::string& author, const std::string& url);
+	void addLink(const std::string& author, const std::string& url, const std::string& message);
 
 	void giveKarma(const std::string& target, int value);
 

@@ -2,6 +2,8 @@
 
 #include <string>
 
+#include <loguru.hpp>
+
 Database::Database()
 {
 	mysql_init(&_mysql);
@@ -78,45 +80,49 @@ std::optional<Author> Database::getAuthor(const std::string& name)
 	return {};
 }
 
-Id Database::addMeme(Id authorId, const std::string& memeUrl)
+Id Database::addMeme(Id authorId, const std::string& memeUrl, const std::string& message)
 {
-	auto query = "INSERT INTO meme VALUES (NULL, " + std::to_string(authorId) + ", '" + memeUrl + "', 0, NOW());";
+	auto query = "INSERT INTO meme VALUES (NULL, ?, ?, 0, NOW(), ?);";
 
-	if (mysql_query(&_mysql, query.c_str()) == 0)
+	auto stmt = mysql_stmt_init(&_mysql);
+
+	if (mysql_stmt_prepare(stmt, query, -1))
 	{
-		return mysql_insert_id(&_mysql);
+		LOG_F(ERROR, "Error(%d) [%s] \"%s\"", mysql_stmt_errno(stmt),
+			mysql_stmt_sqlstate(stmt),
+			mysql_stmt_error(stmt));
+
+		return 0;
 	}
 
-	return 0;
-}
+	MYSQL_BIND bind[3] = { 0 };
 
-std::optional<Meme> Database::getMeme(Id memeId)
-{
-	auto query =
-		"SELECT meme.id, author.id, author.name, meme.url, meme.karma "
-		"FROM meme "
-		"JOIN author ON meme.author_id = author.id "
-		"WHERE meme.id = " + std::to_string(memeId);
+	bind[0].buffer_type = MYSQL_TYPE_LONG;
+	bind[0].buffer = &authorId;
 
-	if (mysql_query(&_mysql, query.c_str()) == 0)
+	bind[1].buffer_type = MYSQL_TYPE_STRING;
+	bind[1].buffer = (void*)memeUrl.c_str();
+	bind[1].buffer_length = memeUrl.size();
+
+	bind[2].buffer_type = MYSQL_TYPE_STRING;
+	bind[2].buffer = (void*)message.c_str();
+	bind[2].buffer_length = message.size();
+
+	const int arraySize = 1;
+	mysql_stmt_bind_param(stmt, bind);
+
+	if (mysql_stmt_execute(stmt))
 	{
-		auto res = mysql_store_result(&_mysql);
+		LOG_F(ERROR, "Error(%d) [%s] \"%s\"", mysql_stmt_errno(stmt),
+			mysql_stmt_sqlstate(stmt),
+			mysql_stmt_error(stmt));
 
-		MYSQL_ROW row = mysql_fetch_row(res);
-
-		if (row == 0)
-			return {};
-
-		Meme meme;
-		meme.id = std::stoull(row[0]);
-		meme.author.id = std::stoull(row[1]);
-		meme.author.name = row[2];
-		meme.url = row[3];
-		meme.karma = std::stoi(row[4]);
-		return meme;
+		return 0;
 	}
 
-	return {};
+	mysql_stmt_close(stmt);
+
+	return mysql_insert_id(&_mysql);
 }
 
 bool Database::setKarma(Id memeId, int value)

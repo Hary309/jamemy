@@ -101,7 +101,7 @@ void PoorchatClientV2::processMsg(const char* userName, const char* msg)
 
 		if (re2::RE2::PartialMatch(msg, _url_re, &url))
 		{
-			_karmaSystem.addLink(userName, url);
+			_karmaSystem.addLink(userName, url, msg);
 		}
 	}
 

@@ -21,7 +21,7 @@ KarmaSystem::~KarmaSystem()
 	_karmaCollectorThread.join();
 }
 
-void KarmaSystem::addLink(const std::string& authorName, const std::string& url)
+void KarmaSystem::addLink(const std::string& authorName, const std::string& url, const std::string& message)
 {
 	std::optional<Author> author = { };
 
@@ -48,7 +48,7 @@ void KarmaSystem::addLink(const std::string& authorName, const std::string& url)
 
 	LOG_F(INFO, "Started collecting karma for %s's meme (%s)", authorName.c_str(), url.c_str());
 
-	_karmaCollector.emplace_back<KarmaCollector>({ author.value().id, authorName, url, 0, std::chrono::high_resolution_clock::now() });
+	_karmaCollector.emplace_back<KarmaCollector>({ author.value().id, authorName, url, message, 0, std::chrono::high_resolution_clock::now() });
 }
 
 void KarmaSystem::giveKarma(const std::string& targetAuthorName, int value)
@@ -91,7 +91,7 @@ void KarmaSystem::karmaCollectorThread()
 					LOG_F(INFO, "Adding to database");
 
 					std::lock_guard<std::mutex> lock(_databaseMutex);
-					auto memeId = _database.addMeme(it->authorId, it->imageUrl);
+					auto memeId = _database.addMeme(it->authorId, it->imageUrl, it->message);
 
 					if (memeId == 0)
 					{
@@ -121,5 +121,5 @@ bool KarmaSystem::isTimedOut(KarmaCollector& karmaCollector)
 {
 	std::chrono::duration<float> duration = std::chrono::high_resolution_clock::now() - karmaCollector.startTime;
 
-	return duration.count() > CollectionTIme;
+	return duration.count() > CollectionTime;
 }

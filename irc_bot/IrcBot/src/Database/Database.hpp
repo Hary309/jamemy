@@ -24,9 +24,7 @@ public:
 	std::optional<Author> getAuthor(Id id);
 	std::optional<Author> getAuthor(const std::string& name);
 
-	Id addMeme(Id authorId, const std::string& memeUrl);
-	std::optional<Meme> getMeme(Id memeId);
-
+	Id addMeme(Id authorId, const std::string& memeUrl, const std::string& message);
 	bool setKarma(Id memeId, int value);
 
 	uint32_t getErrno();
