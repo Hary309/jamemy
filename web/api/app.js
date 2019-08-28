@@ -92,24 +92,28 @@ app.get("/year/:year", (req, res) => {
 });
 
 app.get("/update/:id", (req, res) => {
+    res.status(200).send("ok");
+    
     let id = req.params.id;
+    console.log(`Getting data for ${id}`);
 
     if (!isnumber(id))
     {
-        sendEmpty();
+        console.warn("Not number");
         return;
     }
 
     let query = `SELECT url FROM meme WHERE id = ${id} AND dataType IS NULL`;
 
     db.query(query, async (err, result) => {
+
         if (err) {
             throw err;
         }
 
         if (result.length === 0)
         {
-            res.status(404).send("ups1");
+            console.warn("Cannot find meme");
             return;
         }
 
@@ -119,7 +123,7 @@ app.get("/update/:id", (req, res) => {
 
         if (scrapedData === null)
         {
-            res.status(400).send("ups2");
+            console.warn("Cannot get scrape data");
             return;
         }
 
@@ -130,7 +134,7 @@ app.get("/update/:id", (req, res) => {
                 throw err2;
             }
 
-            res.status(200).send("ok");
+            console.log("Done");
         });
     });
 });
