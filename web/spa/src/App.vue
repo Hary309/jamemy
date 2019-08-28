@@ -20,5 +20,5 @@ export default {
 }
 </script>
 
-<style src="bootstrap/dist/css/bootstrap.min.css">
+<style scoped>
 </style>

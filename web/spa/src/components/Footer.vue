@@ -15,5 +15,6 @@ export default {
 <style>
 .container {
     margin-top: 36px;
+    color: #AAA;
 }
 </style>

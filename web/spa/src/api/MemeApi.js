@@ -10,10 +10,13 @@ export default {
   async last14days() {
     return await Api().get("/last14days");
   },
-  async get(year) {
+  async getYear(year) {
     return await Api().get(`/year/${year}`);
   },
-  async get(month, year) {
+  async getMonth(month, year) {
     return await Api().get(`/month/${month}/year/${year}`);
+  },
+  async getDay(day, month, year) {
+    return await Api().get(`/day/${day}/month/${month}/year/${year}`);
   }
 };

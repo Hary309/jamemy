@@ -49,7 +49,7 @@ app.get("/last14days", cors(), (req, res) => {
     sendData(where, res);
 });
 
-app.get("day/:day/month/:month/year/:year", (req, res) => {
+app.get("/day/:day/month/:month/year/:year", (req, res) => {
     let day = req.params.day;
     let year = req.params.year;
     let month = req.params.month;

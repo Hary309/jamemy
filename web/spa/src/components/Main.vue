@@ -1,93 +1,118 @@
 <template>
-    <main role="main" class="container">
+    <main class="main-container">
         <h1>Najlepsze memy</h1>
 
-        <b-dropdown v-bind:text="selected" variant="primary">
-            <b-dropdown-item v-for="type in types" :key="type.text" @click="dropDownClick(type)">{{type.text}}</b-dropdown-item>
-        </b-dropdown>
+        <b-radio-group id="radio-group-2" v-model="selected" @input="onRadioChange()" buttons>
+            <b-radio :value=1>Dzisiaj</b-radio>
+            <b-radio :value=2>Wczoraj</b-radio>
+            <b-radio :value=3>Ostatnie 14 dni</b-radio>
+            <b-radio :value=4>Konkretny dzień</b-radio>
+        </b-radio-group>
 
-        <b-table class="table" striped hover :items="list.items" :fields="list.fields">
-            <template slot="[url]" slot-scope="data">
-                <a :href="data.item.url.full" target="_blank">{{data.item.url.short}}</a>
-            </template>
+        <div v-if="selected == 4">
+            <b-input @change="onDateChange()" v-model="customDate" type="date" class="date-picker" />
+        </div>
 
-            <template slot="[date]" slot-scope="data">
-                {{dateformat(data.item.date, "HH:MM:ss dd-mm-yyyy")}}
-            </template>
-        </b-table>
+        <div class="items">
+            <Link v-for="link in items" :key="link.id" :data="link" />
+        </div>
     </main>
 </template>
 
 <script>
 import MemeApi from "../api/MemeApi";
+import Link from "./Link";
 import dateformat from "dateformat";
 import cropUrl from "crop-url";
 
 export default {
     name: 'Main',
+    components: { Link },
     async mounted() {
         let data = await MemeApi.today();
         this.loadList(data.data);
     },
     data() {
         return {
-            selected: "Dzisiaj",
-            types: [
-                { text: "Dzisiaj", method: MemeApi.today },
-                { text: "Wczoraj", method: MemeApi.yesterday },
-                { text: "Ostatnie 14 dni", method: MemeApi.last14days }
-            ],
-            list: {
-                fields:{
-                    name: {
-                        label: "Autor"
-                    },
-                    url: {
-                        label: "Url"
-                    },
-                    karma: {
-                        label: "Karma",
-                        sortable: true
-                    },
-                    date: {
-                        label: "Data dodania",
-                        sortable: true
-                    }
-                },
-                items: []
-            }
+            selected: 1,
+            customDate: 0,
+            items: []
         };
     },
     methods: {
         dateformat: dateformat,
         loadList(list) {
-            list.forEach(element => {
-                let url = element.url;
-                element.url = {
-                    full: url,
-                    short: cropUrl(url, 50)
-                };
-            });
-
-            this.list.items = list;
+            this.items = list;
         },
-        async dropDownClick(item) {
-            this.selected = item.text;
+        async onRadioChange() {
+            let data = null;
 
-            let data = await item.method();
+            switch (this.selected)
+            {
+                case 1:
+                    data = await MemeApi.today();
+                    break;
+                case 2:
+                    data = await MemeApi.yesterday();
+                    break;
+                case 3:
+                    data = await MemeApi.last14days();
+                    break;
+                case 4:
+                    break;
+            }
 
-            this.loadList(data.data);
+            if (data !== null)
+            {
+                console.log(data.data);
+                this.loadList(data.data);
+            }
+        },
+        async onDateChange() {
+            var date = new Date(this.customDate);
+
+            let data = await MemeApi.getDay(date.getDate(), date.getMonth() + 1, date.getFullYear());
+
+            if (data !== null)
+            {
+                this.loadList(data.data);
+            }
         }
     }
 }
 </script>
 
 <style scoped>
-.container {
-    margin-top: 36px;
+.main-container {
+    width: 900px;
+    margin: 0 auto;
 }
 
-.table {
+h1 {
+    color: white;
+    margin: 32px 0;
+}
+
+.change-button {
+    margin-right: 4px;
+}
+
+.date-picker {
+    margin-top: 4px;
+    width: 200px;
+}
+
+.items {
     margin-top: 16px;
+    padding-top: 16px;
+    border-top: 1px solid #aaa;
+}
+
+@media (max-width: 1000px) {
+    .main-container {
+        width: 90%;
+    }
+
+    
 }
 </style>
