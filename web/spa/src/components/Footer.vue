@@ -1,8 +1,13 @@
 <template>
-    <footer>
-        <div class="container">
+    <footer class="container">
+        <div class="copyright">
             <p>Piotr Krupa &copy; 2019</p>
         </div>
+        <div class="links">
+            <a href="https://github.com/Harry09/jamemy">Github</a>
+        </div>
+
+        <div class="clear"></div>
     </footer>
 </template>
 
@@ -14,7 +19,19 @@ export default {
 
 <style>
 .container {
-    margin-top: 36px;
+    padding: 36px;
+}
+
+.copyright {
     color: #AAA;
+    float: left;
+}
+
+.links {
+    float: right;
+}
+
+.clear {
+    clear: both;
 }
 </style>

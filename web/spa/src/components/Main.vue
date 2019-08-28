@@ -103,7 +103,6 @@ h1 {
 .items {
     margin-top: 16px;
     padding-top: 16px;
-    border-top: 1px solid #aaa;
 }
 
 @media (max-width: 1000px) {
