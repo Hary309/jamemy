@@ -3,8 +3,10 @@
 #include <algorithm>
 
 #include <loguru.hpp>
+#include <HTTPRequest.hpp>
 
 #include "Database/Database.hpp"
+#include <Config.hpp>
 
 KarmaSystem::KarmaSystem(Database& database)
 	: 
@@ -100,6 +102,9 @@ void KarmaSystem::karmaCollectorThread()
 					else
 					{
 						_database.setKarma(memeId, it->karma);
+
+						http::Request request(Config::apiAddress + "/update/" + std::to_string(memeId));
+						request.send();
 					}
 				}
 				else

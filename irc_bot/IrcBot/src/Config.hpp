@@ -35,6 +35,8 @@ public:
 	static Poorchat poorchat;
 	static Mail mail;
 
+	static std::string apiAddress;
+
 public:
 	static bool load(const char* configFile);
 };

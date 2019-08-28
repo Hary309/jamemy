@@ -10,6 +10,7 @@ using json = nlohmann::json;
 Config::Database Config::database;
 Config::Poorchat Config::poorchat;
 Config::Mail Config::mail;
+std::string Config::apiAddress;
 
 bool Config::load(const char* configFile)
 {
@@ -38,6 +39,8 @@ bool Config::load(const char* configFile)
 	mail.user = jsonEmail["user"];
 	mail.password = jsonEmail["password"];
 	mail.mailTo = jsonEmail["mailTo"];
+
+	apiAddress = json["apiAddress"];
 
 	return true;
 }

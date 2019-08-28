@@ -13,3 +13,6 @@
 [submodule "irc_bot/vendor/smtp-client"]
 	path = irc_bot/vendor/smtp-client
 	url = https://github.com/somnisoft/smtp-client.git
+[submodule "irc_bot/vendor/HTTPRequest"]
+	path = irc_bot/vendor/HTTPRequest
+	url = https://github.com/elnormous/HTTPRequest.git
