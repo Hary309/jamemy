@@ -4,7 +4,10 @@ const mysql = require("mysql");
 const fs = require("fs");
 const isnumber = require("is-number");
 
+const dataScraper = require("./data-scraper");
+
 const app = express();
+
 
 const port = 5000;
 
@@ -88,13 +91,61 @@ app.get("/year/:year", (req, res) => {
     sendData(where, res);
 });
 
+app.get("/update/:id", (req, res) => {
+    res.status(200).send("ok");
+    
+    let id = req.params.id;
+    console.log(`Getting data for ${id}`);
+
+    if (!isnumber(id))
+    {
+        console.warn("Not number");
+        return;
+    }
+
+    let query = `SELECT url FROM meme WHERE id = ${id} AND dataType IS NULL`;
+
+    db.query(query, async (err, result) => {
+
+        if (err) {
+            throw err;
+        }
+
+        if (result.length === 0)
+        {
+            console.warn("Cannot find meme");
+            return;
+        }
+
+        let url = result[0].url;
+
+        let scrapedData = await dataScraper(url);
+
+        if (scrapedData === null)
+        {
+            console.warn("Cannot get scrape data");
+            return;
+        }
+
+        let query2 = `UPDATE meme SET dataType=${scrapedData.type},dataUrl='${scrapedData.url}' WHERE id=${id}`;
+
+        db.query(query2, (err2, result2) => {
+            if (err2) {
+                throw err2;
+            }
+
+            console.log("Done");
+        });
+    });
+});
+
 app.listen(port, () => {
     console.log(`Server running on port: ${port}`);
 });
 
 function sendData(dateFilter, res)
 {
-    let query = `SELECT meme.id, author.name, meme.url, meme.karma, meme.date
+    let query = `SELECT meme.id, author.name, meme.url, meme.karma, meme.date, meme.dataType, meme.dataUrl
     FROM meme 
     JOIN author 
         ON author.id = meme.author_id

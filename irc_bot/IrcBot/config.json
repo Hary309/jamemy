@@ -16,5 +16,6 @@
         "user": "",
         "password": "",
         "mailTo": ""
-    }
+    },
+    "apiAddress": "localhost:5000"
 }

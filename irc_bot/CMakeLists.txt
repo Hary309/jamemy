@@ -49,4 +49,5 @@ target_include_directories(IrcBot PUBLIC
                             "${CMAKE_SOURCE_DIR}/vendor/json/single_include"
                             "${CMAKE_SOURCE_DIR}/vendor/libircclient/include"
                             "${CMAKE_SOURCE_DIR}/vendor/smtp-client/src"
+                            "${CMAKE_SOURCE_DIR}/vendor/HTTPRequest/include"
                             )
