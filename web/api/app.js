@@ -175,7 +175,7 @@ app.listen(port, () => {
 
 function sendData(dateFilter, res)
 {
-    let query = `SELECT meme.id, author.name, meme.url, meme.karma, meme.date, meme.dataType, meme.dataUrl
+    let query = `SELECT meme.id, author.name, meme.url, meme.karma, meme.message, meme.date, meme.dataType, meme.dataUrl
     FROM meme 
     JOIN author 
         ON author.id = meme.author_id

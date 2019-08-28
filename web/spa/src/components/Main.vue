@@ -23,7 +23,6 @@
 import MemeApi from "../api/MemeApi";
 import Link from "./Link";
 import dateformat from "dateformat";
-import cropUrl from "crop-url";
 
 export default {
     name: 'Main',
@@ -64,7 +63,6 @@ export default {
 
             if (data !== null)
             {
-                console.log(data.data);
                 this.loadList(data.data);
             }
         },
