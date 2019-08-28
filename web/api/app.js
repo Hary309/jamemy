@@ -49,6 +49,36 @@ app.get("/last14days", cors(), (req, res) => {
     sendData(where, res);
 });
 
+app.get("day/:day/month/:month/year/:year", (req, res) => {
+    let day = req.params.day;
+    let year = req.params.year;
+    let month = req.params.month;
+
+    if (!isnumber(day))
+    {
+        sendEmpty();
+        return;
+    }
+
+    if (!isnumber(year))
+    {
+        sendEmpty();
+        return;
+    }
+
+    if (!isnumber(month))
+    {
+        sendEmpty();
+        return;
+    }
+
+    let where = `
+    WHERE meme.date BETWEEN
+    "${year}-${month}-${day}" and 
+    "${year}-${month}-${day}" + interval 24 hour + interval 24 hour`;
+
+    sendData(where, res);
+});
 
 app.get("/month/:month/year/:year", (req, res) => {
     let year = req.params.year;
