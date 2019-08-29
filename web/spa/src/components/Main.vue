@@ -102,16 +102,16 @@ export default {
             switch (item.id)
             {
                 case 0:
-                    this.items.sort((a, b) => { console.log(a); return a.karma - b.karma });
+                    this.items.sort((a, b) => { return a.karma - b.karma });
                     break;
                 case 1:
                     this.items.sort((a, b) => { return b.karma - a.karma });
                     break;
                 case 2:
-                    this.items.sort((a, b) => { console.log(a); return new Date(a.date) - new Date(b.date) });
+                    this.items.sort((a, b) => { return new Date(a.date) - new Date(b.date) });
                     break;
                 case 3:
-                    this.items.sort((a, b) => { console.log(a); return new Date(b.date) - new Date(a.date) });
+                    this.items.sort((a, b) => { return new Date(b.date) - new Date(a.date) });
                     break;
             }
         }
