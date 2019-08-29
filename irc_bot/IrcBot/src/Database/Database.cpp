@@ -18,6 +18,7 @@ bool Database::connect(const char* host, const char* user, const char* password,
 {
 	if (mysql_real_connect(&_mysql, host, user, password, database, 0, nullptr, 0))
 	{
+		mysql_set_character_set(&_mysql, "utf8");
 		return true;
 	}
 
