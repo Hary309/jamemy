@@ -2,16 +2,26 @@
     <main class="main-container">
         <h1>Najlepsze memy</h1>
 
-        <b-radio-group id="radio-group-2" v-model="selected" @input="onRadioChange()" buttons>
-            <b-radio :value=1>Dzisiaj</b-radio>
-            <b-radio :value=2>Wczoraj</b-radio>
-            <b-radio :value=3>Ostatnie 14 dni</b-radio>
-            <b-radio :value=4>Konkretny dzień</b-radio>
-        </b-radio-group>
+        <div id="left-side">
+            <b-radio-group id="radio-group-2 radio" v-model="selected" @input="onRadioChange()" buttons>
+                <b-radio :value=1>Dzisiaj</b-radio>
+                <b-radio :value=2>Wczoraj</b-radio>
+                <b-radio :value=3>Ostatnie 14 dni</b-radio>
+                <b-radio :value=4>Wybierz</b-radio>
+            </b-radio-group>
 
-        <div v-if="selected == 4">
-            <b-input @change="onDateChange()" v-model="customDate" type="date" class="date-picker" />
+            <div v-if="selected == 4">
+                <b-input @change="onDateChange()" v-model="customDate" type="date" class="date-picker" />
+            </div>
         </div>
+
+        <div id="right-side">
+            <b-dropdown id="dropdown" :text="selectedSorting.text" >
+                <b-dropdown-item v-for="item in sortings" :key="item.id" @click="onDropDownClick(item)">{{item.text}}</b-dropdown-item>
+            </b-dropdown>
+        </div>
+
+        <div class="clear"></div>
 
         <div class="items">
             <Link v-for="link in items" :key="link.id" :data="link" />
@@ -27,6 +37,9 @@ import dateformat from "dateformat";
 export default {
     name: 'Main',
     components: { Link },
+    created() {
+        this.selectedSorting = this.sortings[1];
+    },
     async mounted() {
         let data = await MemeApi.today();
         this.loadList(data.data);
@@ -35,6 +48,13 @@ export default {
         return {
             selected: 1,
             customDate: 0,
+            sortings: [
+                { id: 0, text: "Malejąco według karmy" },
+                { id: 1, text: "Rosnąco według karmy" },
+                { id: 2, text: "Malejąco według daty" },
+                { id: 3, text: "Rosnąco według daty" }
+            ],
+            selectedSorting: null,
             items: []
         };
     },
@@ -75,6 +95,25 @@ export default {
             {
                 this.loadList(data.data);
             }
+        },
+        async onDropDownClick(item) {
+            this.selectedSorting = item;
+
+            switch (item.id)
+            {
+                case 0:
+                    this.items.sort((a, b) => { console.log(a); return a.karma - b.karma });
+                    break;
+                case 1:
+                    this.items.sort((a, b) => { return b.karma - a.karma });
+                    break;
+                case 2:
+                    this.items.sort((a, b) => { console.log(a); return new Date(a.date) - new Date(b.date) });
+                    break;
+                case 3:
+                    this.items.sort((a, b) => { console.log(a); return new Date(b.date) - new Date(a.date) });
+                    break;
+            }
         }
     }
 }
@@ -105,11 +144,40 @@ h1 {
     padding-top: 16px;
 }
 
+#left-side {
+    float: left;
+}
+
+#left-side input {
+    margin: 0 auto;
+    margin-top: 8px;
+}
+
+#right-side {
+    float: right;
+}
+
 @media (max-width: 1000px) {
     .main-container {
         width: 90%;
     }
+}
 
-    
+@media (max-width: 640px) {
+    #left-side {
+        float: none;
+        display: inline-block;
+        width: 100%;
+        text-align: center;
+        margin-bottom: 8px;
+    }
+
+    #right-side {
+        display: inline-block;
+        width: 100%;
+        float: none;
+        margin: 0 auto;
+        text-align: center;
+    }
 }
 </style>

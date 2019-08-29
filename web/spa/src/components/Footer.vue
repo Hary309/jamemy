@@ -30,8 +30,4 @@ export default {
 .links {
     float: right;
 }
-
-.clear {
-    clear: both;
-}
 </style>

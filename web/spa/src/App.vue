@@ -20,5 +20,8 @@ export default {
 }
 </script>
 
-<style scoped>
+<style>
+.clear {
+  clear: both;
+}
 </style>

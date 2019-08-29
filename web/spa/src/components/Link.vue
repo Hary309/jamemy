@@ -23,7 +23,6 @@
 
 <script>
 import dateformat from "dateformat";
-import utf8 from "utf8";
 import urlParse from "url-parse";
 
 export default {
@@ -113,9 +112,5 @@ export default {
 .link-src a {
     display: inline;
     max-width: 80%;
-}
-
-.clear {
-	clear: both;
 }
 </style>
