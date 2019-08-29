@@ -75,7 +75,7 @@ app.get("/day/:day/month/:month/year/:year", (req, res) => {
     let where = `
     WHERE meme.date BETWEEN
     "${year}-${month}-${day}" and 
-    "${year}-${month}-${day}" + interval 24 hour + interval 24 hour`;
+    "${year}-${month}-${day}" + interval 24 hour`;
 
     sendData(where, res);
 });
