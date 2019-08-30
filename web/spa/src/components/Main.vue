@@ -26,6 +26,27 @@
         <div class="items">
             <Link v-for="link in items" :key="link.id" :data="link" />
         </div>
+
+        <div id="left-side">
+            <b-radio-group id="radio-group-2 radio" v-model="selected" @input="onRadioChange()" buttons>
+                <b-radio :value=1>Dzisiaj</b-radio>
+                <b-radio :value=2>Wczoraj</b-radio>
+                <b-radio :value=3>Ostatnie 14 dni</b-radio>
+                <b-radio :value=4>Wybierz</b-radio>
+            </b-radio-group>
+
+            <div v-if="selected == 4">
+                <b-input @change="onDateChange()" v-model="customDate" type="date" class="date-picker" />
+            </div>
+        </div>
+
+        <div id="right-side">
+            <b-dropdown id="dropdown" :text="selectedSorting.text" >
+                <b-dropdown-item v-for="item in sortings" :key="item.id" @click="onDropDownClick(item)">{{item.text}}</b-dropdown-item>
+            </b-dropdown>
+        </div>
+
+        <div class="clear"></div>
     </main>
 </template>
 
