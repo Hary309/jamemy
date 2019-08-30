@@ -61,7 +61,7 @@ export default {
     name: 'Main',
     components: { Link },
     created() {
-        this.selectedSorting = this.sortings[1];
+        this.selectedSorting = this.sortings[0];
     },
     async mounted() {
         let data = await MemeApi.today();
@@ -86,6 +86,7 @@ export default {
     methods: {
         dateformat: dateformat,
         loadList(list) {
+            this.selectedSorting = this.sortings[0];
             this.items = list;
         },
         async onRadioChange() {
@@ -135,16 +136,16 @@ export default {
             switch (item.id)
             {
                 case 0:
-                    this.items.sort((a, b) => { return a.karma - b.karma });
-                    break;
-                case 1:
                     this.items.sort((a, b) => { return b.karma - a.karma });
                     break;
+                case 1:
+                    this.items.sort((a, b) => { return a.karma - b.karma });
+                    break;
                 case 2:
-                    this.items.sort((a, b) => { return new Date(a.date) - new Date(b.date) });
+                    this.items.sort((a, b) => { return new Date(b.date) - new Date(a.date) });
                     break;
                 case 3:
-                    this.items.sort((a, b) => { return new Date(b.date) - new Date(a.date) });
+                    this.items.sort((a, b) => { return new Date(a.date) - new Date(b.date) });
                     break;
             }
         }
