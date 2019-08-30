@@ -93,6 +93,7 @@ export default {
 
 .link-karma {
     float: right;
+    color: #4699ff;
 }
 
 .link-message {

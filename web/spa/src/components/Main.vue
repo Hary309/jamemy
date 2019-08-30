@@ -23,6 +23,8 @@
 
         <div class="clear"></div>
 
+        <img id="loading" v-if="loading" src="loading.svg">
+
         <div class="items">
             <Link v-for="link in items" :key="link.id" :data="link" />
         </div>
@@ -64,9 +66,11 @@ export default {
     async mounted() {
         let data = await MemeApi.today();
         this.loadList(data.data);
+        this.loading = false;
     },
     data() {
         return {
+            loading: true,
             selected: 1,
             customDate: 0,
             sortings: [
@@ -86,7 +90,13 @@ export default {
         },
         async onRadioChange() {
             let data = null;
+            this.loading = true;
 
+            if (this.selected !== 4)
+            {
+                this.items = [];
+            }
+            
             switch (this.selected)
             {
                 case 1:
@@ -106,6 +116,8 @@ export default {
             {
                 this.loadList(data.data);
             }
+
+            this.loading = false;
         },
         async onDateChange() {
             var date = new Date(this.customDate);
@@ -176,6 +188,11 @@ h1 {
 
 #right-side {
     float: right;
+}
+
+#loading {
+    display: block;
+    margin: 0 auto;
 }
 
 @media (max-width: 1000px) {
