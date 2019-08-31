@@ -3,17 +3,14 @@ const metascraper = require("metascraper")([
     require("metascraper-video")(),
     ]);
 const got = require('got');
-
 const urlParser = require("url-parse");
 
 module.exports = scrapData;
 
-
-
 /// Type:
 /// 1 - image
 /// 2 - video
-
+/// 3 - embedded
 async function scrapData(targetUrl) {
     const { headers, body: html, url } = await got(targetUrl)
 
@@ -34,7 +31,17 @@ async function scrapData(targetUrl) {
         }
     }
 
-    const metadata = await metascraper({ html, url })
+    if (url.includes("youtube.com") || url.includes("youtu.be"))
+    {
+        let parsedUrl = urlParser(url, true);
+
+        return {
+            type: 3,
+            url: `https://www.youtube.com/embed/${parsedUrl.query.v}`
+        }
+    }
+
+    const metadata = await metascraper({ html, url });
 
     if (metadata.image !== null && metadata.video === null)
     {
@@ -53,6 +60,17 @@ async function scrapData(targetUrl) {
     }
     else if (metadata.video !== null)
     {
+        if (url.includes("streamable"))
+        {
+            let videoUrl = urlParser(url);
+            let returnUrl = videoUrl.origin + "/o" + videoUrl.pathname;
+
+            return {
+                type: 3,
+                url: returnUrl
+            }
+        }
+
         return {
             type: 2,
             url: metadata.video

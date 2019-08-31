@@ -164,7 +164,7 @@ app.get("/update/:id", (req, res) => {
                 throw err2;
             }
 
-            console.log("Done");
+            console.log(`Done ${id}`);
         });
     });
 });
