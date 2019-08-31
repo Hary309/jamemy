@@ -86,8 +86,20 @@ export default {
     methods: {
         dateformat: dateformat,
         loadList(list) {
-            this.selectedSorting = this.sortings[0];
             this.items = list;
+
+            let sortingId = localStorage.getItem("sorting");
+
+            if (sortingId !== null)
+            {
+                let sortingIdNum = parseInt(sortingId);
+                this.sortItems(sortingIdNum);
+                this.selectedSorting = this.sortings[sortingIdNum];
+            }
+            else
+            {
+                this.selectedSorting = this.sortings[0];
+            }
         },
         async onRadioChange() {
             let data = null;
@@ -130,10 +142,15 @@ export default {
                 this.loadList(data.data);
             }
         },
-        async onDropDownClick(item) {
+        onDropDownClick(item) {
             this.selectedSorting = item;
 
-            switch (item.id)
+            localStorage.setItem("sorting", item.id);
+            this.sortItems(item.id);
+        },
+        sortItems(sortingId)
+        {
+            switch (sortingId)
             {
                 case 0:
                     this.items.sort((a, b) => { return b.karma - a.karma });
