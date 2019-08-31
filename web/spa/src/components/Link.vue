@@ -13,7 +13,9 @@
         </div>
         <img class="image" v-if="data.dataType == 1" :src="data.dataUrl" alt="">
         <video class="video" v-if="data.dataType == 2" :src="data.dataUrl" autoplay controls loop muted></video>
-
+        <div class="embed" v-if="data.dataType == 3">
+            <iframe :src="data.dataUrl" width="1920" height="1080"></iframe>
+        </div>
         <div class="link-src">
             <span>Src: </span>
             <a :href="data.url" target="_blank">{{getHostname(data.url)}}</a>
@@ -39,9 +41,6 @@ export default {
             dataUrl: String
         }
     },
-    mounted() {
-        // this.data.message = utf8.decode(this.data.message);
-    },
     methods: {
         dateformat: dateformat,
         getHostname(url) {
@@ -63,6 +62,20 @@ export default {
 .video {
     max-width: 100%;
     height: auto;
+}
+
+.embed {
+    padding-top: 56.25%;
+    position:relative;
+}
+
+.embed iframe {
+    position: absolute;
+    top:0;
+    left:0;
+    width:100%;
+    height:100%;
+    border: 0;
 }
 
 .link {
