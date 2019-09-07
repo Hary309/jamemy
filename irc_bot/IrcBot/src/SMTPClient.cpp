@@ -53,7 +53,14 @@ void SMTPClient::sendFault()
 
 	smtp_header_add(_smtp, "Subject", "Server is dead");
 
-	smtp_mail(_smtp, ":(");
+	auto result = smtp_mail(_smtp, ":(");
 
-	LOG_F(INFO, "Email sent!");
+	if (result == SMTP_STATUS_OK)
+	{
+		LOG_F(INFO, "Email sent!");
+	}
+	else
+	{
+		LOG_F(INFO, "Cannot send mail! Code: %d", static_cast<int>(result));
+	}
 }

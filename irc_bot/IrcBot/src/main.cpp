@@ -1,4 +1,4 @@
-﻿#include "App.hpp"
+#include "App.hpp"
 
 #include "loguru.hpp"
 
@@ -28,4 +28,8 @@ int main()
 #ifdef WIN32
 	WSACleanup();
 #endif
+
+	LOG_F(INFO, "Application is closing...");
+
+	std::this_thread::sleep_for(std::chrono::seconds(15));
 }
