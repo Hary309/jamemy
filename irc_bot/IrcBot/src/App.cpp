@@ -31,11 +31,6 @@ bool App::init()
 		return false;
 	}
 
-	if (!initSMTPClient(Config::mail))
-	{
-		LOG_F(ERROR, "Cannot init SMTP Client!");
-	}
-
 	LOG_F(INFO, "App started!");
 
 	_running = true;
@@ -46,6 +41,11 @@ bool App::init()
 void App::run()
 {
 	_client.run();
+
+	if (!initSMTPClient(Config::mail))
+	{
+		LOG_F(ERROR, "Cannot init SMTP Client!");
+	}
 
 	if (_email.isReady())
 	{

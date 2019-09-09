@@ -30,6 +30,4 @@ int main()
 #endif
 
 	LOG_F(INFO, "Application is closing...");
-
-	std::this_thread::sleep_for(std::chrono::seconds(15));
 }
