@@ -1,6 +1,6 @@
 <template>
     <main class="main-container">
-        <h1>Najlepsze memy</h1>
+        <h1>Najlepsze memy <a href="https://poorchat.net/channels/jadisco">#jadisco</a></h1>
 
         <div id="left-side">
             <b-radio-group id="radio-group-2 radio" v-model="selected" @input="onRadioChange()" buttons>

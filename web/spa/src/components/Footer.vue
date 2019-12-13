@@ -1,9 +1,10 @@
 <template>
     <footer class="container">
-        <div class="copyright">
-            <p>Piotr Krupa &copy; 2019</p>
+        <div class="left">
+            <p>Celem strony jest zbieranie najlepszych memów z czatu Poorchat z kanału #jadisco</p>
         </div>
-        <div class="links">
+        <div class="right">
+            Pytania, problemy? Pisz na
             <a href="https://github.com/Harry09/jamemy">Github</a>
         </div>
 
@@ -19,15 +20,15 @@ export default {
 
 <style>
 .container {
+    color: #AAA;
     padding: 36px;
 }
 
-.copyright {
-    color: #AAA;
+.left {
     float: left;
 }
 
-.links {
+.right {
     float: right;
 }
 </style>
