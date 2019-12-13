@@ -9,7 +9,7 @@
         <div class="clear"></div>
         
         <div class="link-message" v-if="data.message.length != 0">
-            <b>Msg:</b> {{data.message}}
+            {{data.message}}
         </div>
         <img class="image" v-if="data.dataType == 1" :src="data.dataUrl" alt="">
         <video class="video" v-if="data.dataType == 2" :src="data.dataUrl" autoplay controls loop muted></video>
