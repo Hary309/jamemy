@@ -8,7 +8,6 @@ const dataScraper = require("./data-scraper");
 
 const app = express();
 
-
 const port = 5000;
 
 let config = JSON.parse(fs.readFileSync("config.json"));
@@ -31,22 +30,42 @@ db.connect((err) => {
 app.use(cors());
 app.set("port", port);
 
+function parse_page_query(req)
+{
+    let page = req.query.page;
+    let limit = req.query.limit;
+    
+    if (page !== undefined && limit !== undefined)
+    {
+        if (!isnumber(page) || !isnumber(limit))
+        {
+            return null;
+        }
+
+        return { offset: page * limit, limit: limit };
+    }
+    else
+    {
+        return null;
+    }
+}
+
 app.get("/today", cors(), (req, res) => {
     let where = "WHERE meme.date BETWEEN curdate() and curdate() + interval 24 hour";
 
-    sendData(where, res);
+    sendData(where, res, req);
 });
 
 app.get("/yesterday", cors(), (req, res) => {
     let where = "WHERE meme.date BETWEEN curdate() - interval 1 day and curdate()";
 
-    sendData(where, res);
+    sendData(where, res, req);
 });
 
 app.get("/last14days", cors(), (req, res) => {
     let where = "WHERE meme.date BETWEEN curdate() - interval 14 day and curdate()";
 
-    sendData(where, res);
+    sendData(where, res, req);
 });
 
 app.get("/day/:day/month/:month/year/:year", (req, res) => {
@@ -77,7 +96,7 @@ app.get("/day/:day/month/:month/year/:year", (req, res) => {
     "${year}-${month}-${day}" and 
     "${year}-${month}-${day}" + interval 24 hour`;
 
-    sendData(where, res);
+    sendData(where, res, req);
 });
 
 app.get("/month/:month/year/:year", (req, res) => {
@@ -100,8 +119,8 @@ app.get("/month/:month/year/:year", (req, res) => {
     WHERE meme.date BETWEEN
     "${year}-${month}-01" and 
     "${year}-${month}-01" + interval 1 month - interval 1 second`;
-
-    sendData(where, res);
+    
+    sendData(where, res, req);
 });
 
 app.get("/year/:year", (req, res) => {
@@ -118,7 +137,7 @@ app.get("/year/:year", (req, res) => {
     "${year}-01-01" and 
     "${year}-01-01" + interval 12 month - interval 1 second`;
 
-    sendData(where, res);
+    sendData(where, res, req);
 });
 
 app.get("/update/:id", (req, res) => {
@@ -173,7 +192,7 @@ app.listen(port, () => {
     console.log(`Server running on port: ${port}`);
 });
 
-function sendData(dateFilter, res)
+function sendData(dateFilter, res, req)
 {
     let query = `SELECT meme.id, author.name, meme.url, meme.karma, meme.message, meme.date, meme.dataType, meme.dataUrl
     FROM meme 
@@ -181,6 +200,16 @@ function sendData(dateFilter, res)
         ON author.id = meme.author_id
     ${dateFilter}
     ORDER BY meme.karma DESC`;
+
+    if (req !== null)
+    {
+        let pagination = parse_page_query(req);
+
+        if (pagination !== null)
+        {
+            query += ` LIMIT ${pagination.limit} OFFSET ${pagination.offset}\n`;
+        }
+    }
 
     db.query(query, (err, result) => {
         if (err) {
