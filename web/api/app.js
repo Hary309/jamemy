@@ -1,12 +1,14 @@
 const express = require("express");
 const cors = require("cors");
-const mysql = require("mysql");
+const mysql = require("mysql2");
 const fs = require("fs");
 const isnumber = require("is-number");
 
 const dataScraper = require("./data-scraper");
 
 const app = express();
+
+
 
 const port = 5000;
 
@@ -29,26 +31,6 @@ db.connect((err) => {
 
 app.use(cors());
 app.set("port", port);
-
-function parse_page_query(req)
-{
-    let page = req.query.page;
-    let limit = req.query.limit;
-    
-    if (page !== undefined && limit !== undefined)
-    {
-        if (!isnumber(page) || !isnumber(limit))
-        {
-            return null;
-        }
-
-        return { offset: page * limit, limit: limit };
-    }
-    else
-    {
-        return null;
-    }
-}
 
 app.get("/today", cors(), (req, res) => {
     let where = "WHERE meme.date BETWEEN curdate() and curdate() + interval 24 hour";
@@ -192,31 +174,124 @@ app.listen(port, () => {
     console.log(`Server running on port: ${port}`);
 });
 
+function parsePageQuery(req)
+{
+    let page = req.query.page;
+    let limit = req.query.limit;
+    
+    if (page !== undefined && limit !== undefined)
+    {
+        if (!isnumber(page) || !isnumber(limit))
+        {
+            return null;
+        }
+
+        return { page: page, limit: limit };
+    }
+    else
+    {
+        return null;
+    }
+}
+
+const SORTBY_KARMA = 1;
+const SORTBY_DATE = 2;
+
+function parseSort(req)
+{
+    let sortBy = parseInt(req.query.sortBy);
+    let sortDesc = parseInt(req.query.sortDesc);
+
+    if (sortBy === undefined || !isnumber(sortBy))
+    {
+        sortBy = SORTBY_KARMA;
+    }
+
+    if (sortDesc === undefined || !isnumber(sortDesc))
+    {
+        sortDesc = 1;
+    }
+
+    return { sortBy: sortBy, sortDesc: sortDesc };
+}
+
+async function countRows(dateFilter)
+{
+    let query = `SELECT COUNT(*) as count
+    FROM meme
+    JOIN author 
+        ON author.id = meme.author_id
+    ${dateFilter}`;
+
+    const [ rows ] = await db.promise().query(query);
+                    
+    return rows[0].count;
+}
+
 function sendData(dateFilter, res, req)
 {
     let query = `SELECT meme.id, author.name, meme.url, meme.karma, meme.message, meme.date, meme.dataType, meme.dataUrl
     FROM meme 
     JOIN author 
         ON author.id = meme.author_id
-    ${dateFilter}
-    ORDER BY meme.karma DESC`;
+    ${dateFilter}\n`;
 
+    let pagination = null;
+    let sortData = null;
     if (req !== null)
     {
-        let pagination = parse_page_query(req);
+        sortData = parseSort(req);
+
+        if (sortData !== null)
+        {
+            console.log(sortData);
+
+            switch (sortData.sortBy)
+            {
+                default:
+                case SORTBY_KARMA:
+                    query += "ORDER BY meme.karma";
+                    break;
+
+                case SORTBY_DATE:
+                    query += "ORDER BY meme.date";
+                    break;
+            }
+
+            if (sortData.sortDesc == 1)
+            {
+                query += " DESC";
+            }
+
+            query += '\n';
+        }
+
+        pagination = parsePageQuery(req);
 
         if (pagination !== null)
         {
-            query += ` LIMIT ${pagination.limit} OFFSET ${pagination.offset}\n`;
+            let offset = pagination.page * pagination.limit;
+
+            query += `LIMIT ${pagination.limit} OFFSET ${offset}\n`;
         }
     }
 
-    db.query(query, (err, result) => {
+    db.query(query, async (err, result) => {
         if (err) {
             throw err;
         }
+        let finalResult = {
+            links: result
+        };
 
-        res.status(200).send(result);
+        if (pagination !== null)
+        {
+            let rowCount = await countRows(dateFilter);
+            
+            finalResult.pagesCount = Math.ceil(rowCount / pagination.limit);
+        }
+
+        res.status(200).send(finalResult);
     });
 }
 
