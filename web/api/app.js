@@ -244,8 +244,6 @@ function sendData(dateFilter, res, req)
 
         if (sortData !== null)
         {
-            console.log(sortData);
-
             switch (sortData.sortBy)
             {
                 default:
