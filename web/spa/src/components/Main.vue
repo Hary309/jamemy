@@ -40,10 +40,15 @@
 
         <!------------------------------------------------------------------------------------------->
 
-        <img id="loading" v-if="loading" src="loading.svg">
+        <div v-if="items.length > 0">
+            <img id="loading" v-if="loading" src="loading.svg">
 
-        <div class="items">
-            <Link v-for="link in items" :key="link.id" :data="link" />
+            <div class="items">
+                <Link v-for="link in items" :key="link.id" :data="link" />
+            </div>
+        </div>
+        <div v-else>
+            <h2>Brak memów :(</h2>
         </div>
 
         <!------------------------------------------------------------------------------------------->
@@ -255,6 +260,11 @@ export default {
 
 h1 {
     color: white;
+    margin: 32px 0;
+}
+
+h2 {
+    color: rgb(172, 172, 172);
     margin: 32px 0;
 }
 
