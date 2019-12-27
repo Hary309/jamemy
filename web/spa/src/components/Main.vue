@@ -3,25 +3,42 @@
         <h1>Najlepsze memy <a href="https://poorchat.net/channels/jadisco">#jadisco</a></h1>
 
         <div id="left-side">
-            <b-radio-group id="radio-group-2 radio" v-model="selected" @input="onRadioChange()" buttons>
+            <b-radio-group id="radio-group-2 radio" v-model="selectedFilter" @input="onRadioChange()" buttons>
                 <b-radio :value=1>Dzisiaj</b-radio>
                 <b-radio :value=2>Wczoraj</b-radio>
                 <b-radio :value=3>Ostatnie 14 dni</b-radio>
                 <b-radio :value=4>Wybierz</b-radio>
             </b-radio-group>
 
-            <div v-if="selected == 4">
+            <div v-if="selectedFilter == 4">
                 <b-input @change="onDateChange()" v-model="customDate" type="date" class="date-picker" />
             </div>
         </div>
 
         <div id="right-side">
-            <b-dropdown id="dropdown" :text="selectedSorting.text" >
+            <b-dropdown id="dropdown" :text="selectedSortingElement.text" >
                 <b-dropdown-item v-for="item in sortings" :key="item.id" @click="onDropDownClick(item)">{{item.text}}</b-dropdown-item>
             </b-dropdown>
         </div>
 
         <div class="clear"></div>
+
+        <div v-if="pagesCount > 1">
+            <b-pagination
+                id="pagination"
+                v-model="currentPage"
+                :total-rows="pagesCount * 20"
+                :per-page="20"
+                first-text="<<"
+                prev-text="<"
+                next-text=">"
+                last-text=">>"
+                align="fill"
+                @change="onPageChange"
+            ></b-pagination>
+        </div>
+
+        <!------------------------------------------------------------------------------------------->
 
         <img id="loading" v-if="loading" src="loading.svg">
 
@@ -29,21 +46,38 @@
             <Link v-for="link in items" :key="link.id" :data="link" />
         </div>
 
+        <!------------------------------------------------------------------------------------------->
+
+        <div v-if="pagesCount > 1">
+            <b-pagination
+                id="pagination"
+                v-model="currentPage"
+                :total-rows="pagesCount * 20"
+                :per-page="20"
+                first-text="<<"
+                prev-text="<"
+                next-text=">"
+                last-text=">>"
+                align="fill"
+                @change="onPageChange"
+            ></b-pagination>
+        </div>
+
         <div id="left-side">
-            <b-radio-group id="radio-group-2 radio" v-model="selected" @input="onRadioChange()" buttons>
+            <b-radio-group id="radio-group-2 radio" v-model="selectedFilter" @input="onRadioChange()" buttons>
                 <b-radio :value=1>Dzisiaj</b-radio>
                 <b-radio :value=2>Wczoraj</b-radio>
                 <b-radio :value=3>Ostatnie 14 dni</b-radio>
                 <b-radio :value=4>Wybierz</b-radio>
             </b-radio-group>
 
-            <div v-if="selected == 4">
+            <div v-if="selectedFilter == 4">
                 <b-input @change="onDateChange()" v-model="customDate" type="date" class="date-picker" />
             </div>
         </div>
 
         <div id="right-side">
-            <b-dropdown id="dropdown" :text="selectedSorting.text" >
+            <b-dropdown id="dropdown" :text="selectedSortingElement.text" >
                 <b-dropdown-item v-for="item in sortings" :key="item.id" @click="onDropDownClick(item)">{{item.text}}</b-dropdown-item>
             </b-dropdown>
         </div>
@@ -53,25 +87,27 @@
 </template>
 
 <script>
-import MemeApi from "../api/MemeApi";
+import MemeApi, { ApiQuery, SortBy } from "../api/MemeApi";
 import Link from "./Link";
 import dateformat from "dateformat";
+
+/* eslint no-console: ["error", { allow: ["info", "log"] }] */
 
 export default {
     name: 'Main',
     components: { Link },
     created() {
-        this.selectedSorting = this.sortings[0];
+        this.selectedSortingElement = this.sortings[0];
     },
     async mounted() {
-        let data = await MemeApi.today();
-        this.loadList(data.data);
+        await this.loadList();
         this.loading = false;
     },
     data() {
         return {
             loading: true,
-            selected: 1,
+            selectedFilter: 1,
+            lastSelectedFilter: 0,
             customDate: 0,
             sortings: [
                 { id: 0, text: "Malejąco według karmy" },
@@ -79,96 +115,138 @@ export default {
                 { id: 2, text: "Malejąco według daty" },
                 { id: 3, text: "Rosnąco według daty" }
             ],
-            selectedSorting: null,
+            selectedSortingElement: null,
+            apiQuery: new ApiQuery(0, SortBy.KARMA, 1),
+            pagesCount: 0,
+            currentPage: 1,
             items: []
         };
     },
     methods: {
         dateformat: dateformat,
-        loadList(list) {
-            this.items = list;
-
+        async requestApi() {
+            switch (this.selectedFilter)
+            {
+                case 1:
+                    return await MemeApi.today(this.apiQuery);
+                case 2:
+                    return await MemeApi.yesterday(this.apiQuery);
+                case 3:
+                    return await MemeApi.last14days(this.apiQuery);
+                case 4:
+                    var date = new Date(this.customDate);
+                    return await MemeApi.getDay(date.getDate(), date.getMonth() + 1, date.getFullYear(), this.apiQuery);
+            }
+        },
+        async loadList() {
+            console.log("asdf");
             let sortingId = localStorage.getItem("sorting");
 
             if (sortingId !== null)
             {
-                let sortingIdNum = parseInt(sortingId);
-                this.sortItems(sortingIdNum);
-                this.selectedSorting = this.sortings[sortingIdNum];
+                sortingId = parseInt(sortingId);
             }
             else
             {
-                this.selectedSorting = this.sortings[0];
+                sortingId = 0;
             }
+            
+            this.selectedSortingElement = this.sortings[sortingId];
+
+            switch (sortingId) {
+                case 0: // by karma desc
+                    this.apiQuery.sortBy = SortBy.KARMA;
+                    this.apiQuery.sortDesc = 1;
+                    break;
+                case 1: // by karma asc
+                    this.apiQuery.sortBy = SortBy.KARMA;
+                    this.apiQuery.sortDesc = 0;
+                    break;
+                case 2: // by date desc
+                    this.apiQuery.sortBy = SortBy.DATE;
+                    this.apiQuery.sortDesc = 1;
+                    break;
+                case 3: // by date asc
+                    this.apiQuery.sortBy = SortBy.DATE;
+                    this.apiQuery.sortDesc = 0;
+                    break;
+                
+                default:
+                    break;
+            }
+            
+            this.apiQuery.page = this.currentPage - 1;
+
+            let list = await this.requestApi();
+            
+            let listData = list.data;
+            this.items = listData.links;
+            this.pagesCount = listData.pagesCount;
         },
         async onRadioChange() {
-            let data = null;
+
+            // prevent double calling
+            if (this.selectedFilter == this.lastSelectedFilter)
+            {
+                return;
+            }
+
+            this.lastSelectedFilter = this.selectedFilter;
+
             this.loading = true;
 
-            if (this.selected !== 4)
+            if (this.selectedFilter !== 4)
             {
                 this.items = [];
             }
-            
-            switch (this.selected)
-            {
-                case 1:
-                    data = await MemeApi.today();
-                    break;
-                case 2:
-                    data = await MemeApi.yesterday();
-                    break;
-                case 3:
-                    data = await MemeApi.last14days();
-                    break;
-                case 4:
-                    break;
-            }
 
-            if (data !== null)
-            {
-                this.loadList(data.data);
-            }
+            await this.loadList();
 
             this.loading = false;
         },
         async onDateChange() {
-            var date = new Date(this.customDate);
-
-            let data = await MemeApi.getDay(date.getDate(), date.getMonth() + 1, date.getFullYear());
-
-            if (data !== null)
-            {
-                this.loadList(data.data);
-            }
+            this.loadList();
         },
         onDropDownClick(item) {
-            this.selectedSorting = item;
+            this.selectedSortingElement = item;
 
             localStorage.setItem("sorting", item.id);
-            this.sortItems(item.id);
+
+            this.loadList();
         },
-        sortItems(sortingId)
-        {
-            switch (sortingId)
-            {
-                case 0:
-                    this.items.sort((a, b) => { return b.karma - a.karma });
-                    break;
-                case 1:
-                    this.items.sort((a, b) => { return a.karma - b.karma });
-                    break;
-                case 2:
-                    this.items.sort((a, b) => { return new Date(b.date) - new Date(a.date) });
-                    break;
-                case 3:
-                    this.items.sort((a, b) => { return new Date(a.date) - new Date(b.date) });
-                    break;
-            }
+        onPageChange(pageNum) {
+            this.currentPage = pageNum;
+            this.loadList();
         }
     }
 }
 </script>
+
+
+<style>
+/* i don't know how to do it in the right way xd */
+.page-item .page-link {  
+    background-color: #6c757d !important;  
+    border-color: #6c757d !important;  
+    color: white;
+}
+
+.page-item:hover .page-link {  
+    background-color: #5a6268 !important;  
+    border-color: #5a6268 !important;  
+    color: white;
+    transition-duration: 0.25s;
+}
+
+.page-item.active .page-link {  
+    background-color: #545b62 !important;  
+    border-color: #545b62 !important;  
+}
+
+.page-item.disabled .page-link {  
+    color:rgb(214, 214, 214) !important;
+}
+</style>
 
 <style scoped>
 .main-container {
@@ -190,11 +268,6 @@ h1 {
     width: 200px;
 }
 
-.items {
-    margin-top: 16px;
-    padding-top: 16px;
-}
-
 #left-side {
     float: left;
 }
@@ -211,6 +284,10 @@ h1 {
 #loading {
     display: block;
     margin: 0 auto;
+}
+
+#pagination {
+    margin: 40px 0;
 }
 
 @media (max-width: 1000px) {

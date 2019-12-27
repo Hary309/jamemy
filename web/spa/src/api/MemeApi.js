@@ -1,22 +1,42 @@
 import Api from "./base";
 
+export const SortBy = {
+  KARMA: 1,
+  DATE: 2
+};
+
+export class ApiQuery
+{
+  static limit = 20;
+
+  constructor(page, sortBy, sortDesc)
+  {
+    this.page = page;
+    this.sortBy = sortBy;
+    this.sortDesc = sortDesc;
+  }
+}
+
 export default {
-  async today() {
-    return await Api().get("/today");
+  async sendRequest(url, apiQuery) {
+    return await Api().get(url + `?limit=${ApiQuery.limit}&page=${apiQuery.page}&sortBy=${apiQuery.sortBy}&sortDesc=${apiQuery.sortDesc}`);
   },
-  async yesterday() {
-    return await Api().get("/yesterday");
+  async today(apiQuery) {
+    return await this.sendRequest("/today", apiQuery);
   },
-  async last14days() {
-    return await Api().get("/last14days");
+  async yesterday(apiQuery) {
+    return await this.sendRequest("/yesterday", apiQuery);
   },
-  async getYear(year) {
-    return await Api().get(`/year/${year}`);
+  async last14days(apiQuery) {
+    return await this.sendRequest("/last14days", apiQuery);
   },
-  async getMonth(month, year) {
-    return await Api().get(`/month/${month}/year/${year}`);
+  async getYear(year, apiQuery) {
+    return await this.sendRequest(`/year/${year}`, apiQuery);
   },
-  async getDay(day, month, year) {
-    return await Api().get(`/day/${day}/month/${month}/year/${year}`);
+  async getMonth(month, year, apiQuery) {
+    return await this.sendRequest(`/month/${month}/year/${year}`, apiQuery);
+  },
+  async getDay(day, month, year, apiQuery) {
+    return await this.sendRequest(`/day/${day}/month/${month}/year/${year}`, apiQuery);
   }
 };
