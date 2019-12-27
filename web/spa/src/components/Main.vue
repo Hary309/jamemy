@@ -139,7 +139,6 @@ export default {
             }
         },
         async loadList() {
-            console.log("asdf");
             let sortingId = localStorage.getItem("sorting");
 
             if (sortingId !== null)
