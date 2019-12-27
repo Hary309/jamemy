@@ -3,21 +3,26 @@
         <h1>Najlepsze memy <a href="https://poorchat.net/channels/jadisco">#jadisco</a></h1>
 
         <div id="left-side">
-            <b-radio-group id="radio-group-2 radio" v-model="selectedFilter" @input="onRadioChange()" buttons>
-                <b-radio :value=1>Dzisiaj</b-radio>
-                <b-radio :value=2>Wczoraj</b-radio>
-                <b-radio :value=3>Ostatnie 14 dni</b-radio>
-                <b-radio :value=4>Wybierz</b-radio>
-            </b-radio-group>
+            <b-dropdown id="dropdown" :text="selectedFilterElement.text">
+                <b-dropdown-item v-for="item in filters" :key="item.id" @click="onFilterDropDownClick(item)">{{item.text}}</b-dropdown-item>
+            </b-dropdown>
 
-            <div v-if="selectedFilter == 4">
+            <div v-if="selectedFilterElement.id == 3">
                 <b-input @change="onDateChange()" v-model="customDate" type="date" class="date-picker" />
+            </div>
+
+            <div v-if="selectedFilterElement.id == 4">
+                <b-input @change="onDateChange()" v-model="customDate" type="month" class="date-picker" />
+            </div>
+
+            <div v-if="selectedFilterElement.id == 5">
+                <b-input @change="onDateChange()" v-model="customYear" type="number" min="2012" max="2099" value="2000" class="date-picker" />
             </div>
         </div>
 
         <div id="right-side">
-            <b-dropdown id="dropdown" :text="selectedSortingElement.text" >
-                <b-dropdown-item v-for="item in sortings" :key="item.id" @click="onDropDownClick(item)">{{item.text}}</b-dropdown-item>
+            <b-dropdown id="dropdown" :text="selectedSortingElement.text">
+                <b-dropdown-item v-for="item in sortings" :key="item.id" @click="onSortingDropDownClick(item)">{{item.text}}</b-dropdown-item>
             </b-dropdown>
         </div>
 
@@ -69,21 +74,26 @@
         </div>
 
         <div id="left-side">
-            <b-radio-group id="radio-group-2 radio" v-model="selectedFilter" @input="onRadioChange()" buttons>
-                <b-radio :value=1>Dzisiaj</b-radio>
-                <b-radio :value=2>Wczoraj</b-radio>
-                <b-radio :value=3>Ostatnie 14 dni</b-radio>
-                <b-radio :value=4>Wybierz</b-radio>
-            </b-radio-group>
+            <b-dropdown id="dropdown" :text="selectedFilterElement.text">
+                <b-dropdown-item v-for="item in filters" :key="item.id" @click="onFilterDropDownClick(item)">{{item.text}} </b-dropdown-item>
+            </b-dropdown>
 
-            <div v-if="selectedFilter == 4">
+            <div v-if="selectedFilterElement.id == 3">
                 <b-input @change="onDateChange()" v-model="customDate" type="date" class="date-picker" />
+            </div>
+
+            <div v-if="selectedFilterElement.id == 4">
+                <b-input @change="onDateChange()" v-model="customDate" type="month" class="date-picker" />
+            </div>
+
+            <div v-if="selectedFilterElement.id == 5">
+                <b-input @change="onDateChange()" v-model="customYear" type="number" min="2012" max="2099" value="2000" class="date-picker" />
             </div>
         </div>
 
         <div id="right-side">
-            <b-dropdown id="dropdown" :text="selectedSortingElement.text" >
-                <b-dropdown-item v-for="item in sortings" :key="item.id" @click="onDropDownClick(item)">{{item.text}}</b-dropdown-item>
+            <b-dropdown id="dropdown" :text="selectedSortingElement.text">
+                <b-dropdown-item v-for="item in sortings" :key="item.id" @click="onSortingDropDownClick(item)">{{item.text}}</b-dropdown-item>
             </b-dropdown>
         </div>
 
@@ -102,6 +112,7 @@ export default {
     name: 'Main',
     components: { Link },
     created() {
+        this.selectedFilterElement = this.filters[0];
         this.selectedSortingElement = this.sortings[0];
     },
     async mounted() {
@@ -111,9 +122,17 @@ export default {
     data() {
         return {
             loading: true,
-            selectedFilter: 1,
-            lastSelectedFilter: 0,
             customDate: 0,
+            customYear: 2019,
+            filters: [
+                { id: 0, text: "Dzisiaj" },
+                { id: 1, text: "Wczoraj" },
+                { id: 2, text: "Ostatnie 14 dni" },
+                { id: 3, text: "Wybierz dzień..." },
+                { id: 4, text: "Wybierz miesiąc..." },
+                { id: 5, text: "Wybierz rok..." }
+            ],
+            selectedFilterElement: null,
             sortings: [
                 { id: 0, text: "Malejąco według karmy" },
                 { id: 1, text: "Rosnąco według karmy" },
@@ -130,20 +149,32 @@ export default {
     methods: {
         dateformat: dateformat,
         async requestApi() {
-            switch (this.selectedFilter)
+            switch (this.selectedFilterElement.id)
             {
-                case 1:
+                case 0:
                     return await MemeApi.today(this.apiQuery);
-                case 2:
+                case 1:
                     return await MemeApi.yesterday(this.apiQuery);
-                case 3:
+                case 2:
                     return await MemeApi.last14days(this.apiQuery);
-                case 4:
-                    var date = new Date(this.customDate);
+                case 3:
+                {
+                    let date = new Date(this.customDate);
                     return await MemeApi.getDay(date.getDate(), date.getMonth() + 1, date.getFullYear(), this.apiQuery);
+                }
+                case 4:
+                {
+                    let date = new Date(this.customDate);
+                    return await MemeApi.getMonth(date.getMonth() + 1, date.getFullYear(), this.apiQuery);
+                }
+                case 5:
+                {
+                    return await MemeApi.getYear(this.customYear, this.apiQuery);
+                }
             }
         },
         async loadList() {
+            this.loading = true;
             let sortingId = localStorage.getItem("sorting");
 
             if (sortingId !== null)
@@ -186,32 +217,25 @@ export default {
             let listData = list.data;
             this.items = listData.links;
             this.pagesCount = listData.pagesCount;
-        },
-        async onRadioChange() {
-
-            // prevent double calling
-            if (this.selectedFilter == this.lastSelectedFilter)
-            {
-                return;
-            }
-
-            this.lastSelectedFilter = this.selectedFilter;
-
-            this.loading = true;
-
-            if (this.selectedFilter !== 4)
-            {
-                this.items = [];
-            }
-
-            await this.loadList();
-
             this.loading = false;
         },
         async onDateChange() {
+            this.currentPage = 1;
             this.loadList();
         },
-        onDropDownClick(item) {
+        async onFilterDropDownClick(item) {
+            this.selectedFilterElement = item;
+
+            this.currentPage = 1;
+
+            if (this.selectedFilterElement.id != 3 && this.selectedFilterElement.id != 4)
+            {
+                this.items = [];
+                await this.loadList();
+            }
+
+        }, 
+        onSortingDropDownClick(item) {
             this.selectedSortingElement = item;
 
             localStorage.setItem("sorting", item.id);
