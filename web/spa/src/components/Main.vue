@@ -45,9 +45,9 @@
 
         <!------------------------------------------------------------------------------------------->
 
-        <div v-if="items.length > 0">
-            <img id="loading" v-if="loading" src="loading.svg">
+        <img id="loading" v-if="loading" src="loading.svg">
 
+        <div v-if="items.length > 0">
             <div class="items">
                 <Link v-for="link in items" :key="link.id" :data="link" />
             </div>
