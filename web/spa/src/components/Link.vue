@@ -1,5 +1,5 @@
 <template>
-    <div class="link">
+    <div class="link" :linkId="data.id">
         <div class="link-header">
             <div class="link-author">{{data.name}}</div>
             <div class="link-date">{{dateformat(data.date, "HH:MM:ss dd-mm-yyyy")}}</div>
