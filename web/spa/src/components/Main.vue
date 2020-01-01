@@ -46,14 +46,18 @@
         <!------------------------------------------------------------------------------------------->
 
         <img id="loading" v-if="loading" src="loading.svg">
-
-        <div v-if="items.length > 0">
-            <div class="items">
-                <Link v-for="link in items" :key="link.id" :data="link" />
-            </div>
-        </div>
         <div v-else>
-            <h2>Brak memów :(</h2>
+            <div v-if="isError">
+                <h2>{{errorMessage}}</h2>
+            </div>
+            <div v-else-if="items.length > 0">
+                <div class="items">
+                    <Link v-for="link in items" :key="link.id" :data="link" />
+                </div>
+            </div>
+            <div v-else>
+                <h2>Brak memów :(</h2>
+            </div>
         </div>
 
         <!------------------------------------------------------------------------------------------->
@@ -122,6 +126,8 @@ export default {
     data() {
         return {
             loading: true,
+            isError: false,
+            errorMessage: "",
             customDate: 0,
             customYear: 2019,
             filters: [
@@ -175,6 +181,7 @@ export default {
         },
         async loadList() {
             this.loading = true;
+            this.isError = false;
             let sortingId = localStorage.getItem("sorting");
 
             if (sortingId !== null)
@@ -212,11 +219,26 @@ export default {
             
             this.apiQuery.page = this.currentPage - 1;
 
-            let list = await this.requestApi();
-            
-            let listData = list.data;
-            this.items = listData.links;
-            this.pagesCount = listData.pagesCount;
+            let list = null;
+
+            try
+            {
+                list = await this.requestApi();
+            }
+            catch (error)
+            {
+                this.isError = true;
+                this.errorMessage = error;
+                this.loading = false;
+                
+            }
+
+            if (list !== null)
+            {
+                let listData = list.data;
+                this.items = listData.links;
+                this.pagesCount = listData.pagesCount;
+            }
             this.loading = false;
         },
         async onDateChange() {
