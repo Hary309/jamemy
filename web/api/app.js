@@ -14,19 +14,14 @@ const port = 5000;
 
 let config = JSON.parse(fs.readFileSync("config.json"));
 
-const db = mysql.createConnection({
+const pool = mysql.createPool({
     host: config.host,
     user: config.user,
     password: config.password,
-    database: config.database
-});
-
-db.connect((err) => {
-    if (err) {
-        throw err;
-    }
-
-    console.log("Connected to database!");
+    database: config.database,
+    waitForConnections: true,
+    connectionLimit: 10,
+    queueLimit: 0
 });
 
 app.use(cors());
@@ -136,7 +131,7 @@ app.get("/update/:id", (req, res) => {
 
     let query = `SELECT url FROM meme WHERE id = ${id} AND dataType IS NULL`;
 
-    db.query(query, async (err, result) => {
+    pool.query(query, async (err, result) => {
 
         if (err) {
             throw err;
@@ -160,7 +155,7 @@ app.get("/update/:id", (req, res) => {
 
         let query2 = `UPDATE meme SET dataType=${scrapedData.type},dataUrl='${scrapedData.url}' WHERE id=${id}`;
 
-        db.query(query2, (err2, result2) => {
+        pool.query(query2, (err2, result2) => {
             if (err2) {
                 throw err2;
             }
@@ -223,7 +218,7 @@ async function countRows(dateFilter)
         ON author.id = meme.author_id
     ${dateFilter}`;
 
-    const [ rows ] = await db.promise().query(query);
+    const [ rows ] = await pool.promise().query(query);
                     
     return rows[0].count;
 }
@@ -274,7 +269,7 @@ function sendData(dateFilter, res, req)
         }
     }
 
-    db.query(query, async (err, result) => {
+    pool.query(query, async (err, result) => {
         if (err) {
             throw err;
         }
