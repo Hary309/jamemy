@@ -31,4 +31,7 @@ public:
 	const char* getError();
 
 	MYSQL& getMySQL() { return _mysql; }
+
+private:
+	void showErrorIfExist();
 };

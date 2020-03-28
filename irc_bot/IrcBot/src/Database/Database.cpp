@@ -22,6 +22,8 @@ bool Database::connect(const char* host, const char* user, const char* password,
 		return true;
 	}
 
+	showErrorIfExist();
+
 	return false;
 }
 
@@ -34,6 +36,8 @@ Id Database::addAuthor(const std::string& name)
 		return mysql_insert_id(&_mysql);
 	}
 	
+	showErrorIfExist();
+
 	return 0;
 }
 
@@ -56,6 +60,8 @@ std::optional<Author> Database::getAuthor(Id id)
 		return author;
 	}
 
+	showErrorIfExist();
+
 	return {};
 }
 
@@ -77,6 +83,8 @@ std::optional<Author> Database::getAuthor(const std::string& name)
 		author.name = row[1];
 		return author;
 	}
+
+	showErrorIfExist();
 
 	return {};
 }
@@ -123,6 +131,8 @@ Id Database::addMeme(Id authorId, const std::string& memeUrl, const std::string&
 
 	mysql_stmt_close(stmt);
 
+	showErrorIfExist();
+
 	return mysql_insert_id(&_mysql);
 }
 
@@ -135,6 +145,8 @@ bool Database::setKarma(Id memeId, int value)
 		return true;
 	}
 
+	showErrorIfExist();
+
 	return false;
 }
 
@@ -146,4 +158,14 @@ uint32_t Database::getErrno()
 const char* Database::getError()
 {
 	return mysql_error(&_mysql);
+}
+
+void Database::showErrorIfExist()
+{
+	uint32_t _errno = getErrno();
+
+	if (_errno != 0)
+	{
+		LOG_F(ERROR, "[%d] Error '%s'", _errno, getError());
+	}
 }
