@@ -23,8 +23,6 @@ private:
 	re2::RE2 _karmaPlus_re{ "([a-zA-Z0-9_]+) *,* *\\+\\+" };
 	re2::RE2 _karmaMinus_re{ "([a-zA-Z0-9_]+) *,* *\\-\\-" };
 
-	int _maxErrorCount = 5;
-
 public:
 	PoorchatClientV2(KarmaSystem& karmaSystem);
 	~PoorchatClientV2();
@@ -39,7 +37,6 @@ public:
 	const char* getError();
 
 private:
-	void reconnect();
 	void joinChannel();
 	void processMsg(const char* userName, const char* msg);
 	void findKarmaAction(const std::string& message, const std::string& messageAuthor, const re2::RE2& regex, int value);

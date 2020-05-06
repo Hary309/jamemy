@@ -56,28 +56,6 @@ bool PoorchatClientV2::connect(const char* ip, short port, const char* channel)
 	return irc_connect(_ircSession, ip, port, 0, "Bot", 0, 0) == 0;
 }
 
-void PoorchatClientV2::reconnect()
-{
-	shutdown();
-	
-	LOG_F(INFO, "Reconnect in 5 second...");
-
-	std::this_thread::sleep_for(std::chrono::seconds(5));
-
-	if (!init())
-	{
-		LOG_F(INFO, "Cannot reinit IRC Client");
-		return;
-	}
-
-	LOG_F(INFO, "Reconnecting...");
-
-	if (irc_connect(_ircSession, _ip.c_str(), _port, 0, "Bot", 0, 0) != 0)
-	{
-		LOG_F(ERROR, "Cannot reconnect (%s)", getError());
-	}
-}
-
 void PoorchatClientV2::joinChannel()
 {
 	if (irc_cmd_join(_ircSession, _channelToJoin.c_str(), 0) != 0)
@@ -127,19 +105,9 @@ void PoorchatClientV2::findKarmaAction(const std::string& message, const std::st
 
 void PoorchatClientV2::run()
 {
-	while (irc_run(_ircSession) != 0)
+	if (irc_run(_ircSession) != 0)
 	{
-		if (_maxErrorCount <= 0)
-		{
-			LOG_F(INFO, "Application is dead. Restart it manually");
-			return;
-		}
-
-		LOG_F(INFO, "Could not connect or I/O error: %s", getError());
-
-		reconnect();
-
-		_maxErrorCount--;
+		LOG_F(INFO, "IRC is dead. Error: %s\n", getError());
 	}
 }
 
@@ -161,8 +129,6 @@ void PoorchatClientV2::ircEventConnect(irc_session_t* session, const char* event
 	LOG_F(INFO, "Connected to server!");
 
 	ctx->joinChannel();
-
-	ctx->_maxErrorCount = 5;
 }
 
 void PoorchatClientV2::ircEventChannel(irc_session_t* session, const char* event, const char* origin, const char** params, unsigned int count)
