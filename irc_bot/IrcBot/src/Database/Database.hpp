@@ -13,6 +13,7 @@ class Database
 {
 private:
 	MYSQL _mysql;
+	bool _autoReconnect = true;
 	
 public:
 	Database();

@@ -7,6 +7,7 @@
 Database::Database()
 {
 	mysql_init(&_mysql);
+	mysql_options(&_mysql, MYSQL_OPT_RECONNECT, &_autoReconnect);
 }
 
 Database::~Database()
