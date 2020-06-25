@@ -1,6 +1,6 @@
 <template>
     <main class="main-container">
-        <h1>Najlepsze memy <a href="https://poorchat.net/channels/jadisco">#jadisco</a></h1>
+        <h1>Memy prosto z <a href="https://poorchat.net/channels/jadisco">#jadisco</a> <img src="../assets/peepoHappy.png"></h1>
 
         <div id="left-side">
             <b-dropdown id="dropdown" :text="selectedFilterElement.text">
