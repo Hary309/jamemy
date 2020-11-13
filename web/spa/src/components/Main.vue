@@ -2,8 +2,6 @@
     <main class="main-container">
         <h1>Memy prosto z <a href="https://poorchat.net/channels/jadisco">#jadisco</a> <img src="../assets/peepoHappy.png"></h1>
 
-        <h1>Niestety bot umar, postaram się go naprawić tak szybko jak się da</h1>
-
         <div id="left-side">
             <b-dropdown id="dropdown" :text="selectedFilterElement.text">
                 <b-dropdown-item v-for="item in filters" :key="item.id" @click="onFilterDropDownClick(item)">{{item.text}}</b-dropdown-item>
