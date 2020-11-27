@@ -1,6 +1,8 @@
 <template>
     <main class="main-container">
         <h1>Memy prosto z <a href="https://poorchat.net/channels/jadisco">#jadisco</a> <img src="../assets/peepoHappy.png"></h1>
+        <h4 style="color: #AAA;">Dzięki uprzejmości <b>mellontusk</b>, jamemy dostało nową domene: <a href="http://jamemy.pl/">jamemy.pl</a> <img src="../assets/peepoLove.png"></h4>
+        <br>
 
         <div id="left-side">
             <b-dropdown id="dropdown" :text="selectedFilterElement.text">
