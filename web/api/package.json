@@ -17,6 +17,6 @@
     "metascraper-image": "^5.6.6",
     "metascraper-video": "^5.6.6",
     "mysql2": "^2.1.0",
-    "url-parse": "^1.5.0"
+    "url-parse": "^1.5.8"
   }
 }
